@@ -1,0 +1,22 @@
+<!doctype html>
+
+<div id="camera_control">
+    {% for opt, value in focuser.opts.items(): %}
+        <div id="{{ opt }}">
+            <input type="range" min="{{ value["MIN_VALUE"] }}" max="{{  value["MAX_VALUE"] }}" value="0" class="slider" id="{{ opt }}_slider">
+            <p>{{ opt }}: <span id="{{ opt }}_value"></span></p>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    let divs = document.querySelectorAll('div')
+
+    divs.forEach((div) => {
+        const textNode = document.createTextNode("text")
+        var div_slider = div.querySelectorAll('.slider')[0];
+        div_slider.oninput = function(test) {
+            div.querySelectorAll('span')[0].innerHTML = div_slider.value;
+        }
+    });
+</script>
