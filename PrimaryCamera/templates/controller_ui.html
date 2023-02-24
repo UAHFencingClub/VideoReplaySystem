@@ -4,7 +4,7 @@
     {% for opt, value in focuser.opts.items(): %}
         <div id="{{ opt }}">
             <input type="range" min="{{ value["MIN_VALUE"] }}" max="{{  value["MAX_VALUE"] }}" value="0" class="slider" id="{{ opt }}_slider">
-            <p>{{ opt }}: <span id="{{ opt }}_value"></span></p>
+            <p>{{ opt }}: <span id="{{ opt }}_value">0</span></p>
         </div>
     {% endfor %}
 </div>
