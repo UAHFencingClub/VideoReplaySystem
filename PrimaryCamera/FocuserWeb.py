@@ -1,6 +1,11 @@
 from flask import Flask, request, render_template
-from FocuserDummy import Focuser
+
 app = Flask(__name__)
+
+if app.config["ENV"] == "development":
+	from FocuserDummy import Focuser
+else:
+	from Focuser import Focuser
 
 i2c_bus = 1
 focuser = Focuser(i2c_bus)
