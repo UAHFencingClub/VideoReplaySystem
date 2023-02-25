@@ -3,8 +3,8 @@
 <div id="camera_control">
     {% for opt, value in focuser.opts.items(): %}
         <div id="{{ opt }}">
-            <input type="range" min="{{ value["MIN_VALUE"] }}" max="{{  value["MAX_VALUE"] }}" value="0" class="slider" id="{{ opt }}_slider">
-            <p>{{ opt }}: <span id="{{ opt }}_value">0</span></p>
+            <input type="range" min="{{ value["MIN_VALUE"] }}" max="{{  value["MAX_VALUE"] }}" value="{{ focuser.get(opt) }}" class="slider" id="{{ opt }}_slider">
+            <p>{{ opt }}: <span id="{{ opt }}_value">{{ focuser.get(opt) }}</span></p>
         </div>
     {% endfor %}
 </div>
@@ -15,8 +15,18 @@
     divs.forEach((div) => {
         const textNode = document.createTextNode("text")
         var div_slider = div.querySelectorAll('.slider')[0];
-        div_slider.oninput = function(test) {
+        div_slider.oninput = function() {
+            console.log(div.id)
             div.querySelectorAll('span')[0].innerHTML = div_slider.value;
+
+            fetch("http://127.0.0.1:5000/api/camera", {
+                method: "POST",
+                body: '{"'+div.id+'":'+div_slider.value+'}',
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
         }
     });
 </script>
