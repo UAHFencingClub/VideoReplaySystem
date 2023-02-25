@@ -15,17 +15,18 @@
     divs.forEach((div) => {
         const textNode = document.createTextNode("text")
         var div_slider = div.querySelectorAll('.slider')[0];
-        div_slider.oninput = function() {
+        div_slider.onchange = function() {
             console.log(div.id)
             div.querySelectorAll('span')[0].innerHTML = div_slider.value;
 
-            fetch("http://127.0.0.1:5000/api/camera", {
+            fetch("http://"+window.location.host+"/api/camera", {
                 method: "POST",
                 body: '{"'+div.id+'":'+div_slider.value+'}',
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
-            });
+            }).then((response) => response.json())
+          .then((json) => console.log(json));
 
         }
     });
