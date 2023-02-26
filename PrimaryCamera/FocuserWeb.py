@@ -6,6 +6,10 @@ if app.config["ENV"] == "development":
 	from FocuserDummy import Focuser
 else:
 	from Focuser import Focuser
+	
+from gpiozero import Servo
+
+servo = Servo(16)
 
 i2c_bus = 1
 focuser = Focuser(i2c_bus)
@@ -13,6 +17,18 @@ focuser = Focuser(i2c_bus)
 @app.route('/')
 def index():
 	return 'Server Works!'
+
+@app.route('/api/servo', methods=['GET', 'POST'])
+def server_controller():
+	result = {"lol":"lmao"}
+	if request.method == 'POST':
+		content = request.json
+		servo.value = content["value"]
+
+	elif request.method == 'GET':
+		result = render_template('servo_test_ui.html')
+
+	return result
 
 @app.route('/controller')
 def controller_ui():

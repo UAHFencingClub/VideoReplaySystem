@@ -1,0 +1,29 @@
+<!doctype html>
+
+<div id="servo_control">
+            <input type="range" step="0.01" min="-1" max="1" value="0" class="slider" id="servo_slider">
+            <p>Value: <span id="servo_value"></span></p>
+</div>
+
+<script>
+    let divs = document.querySelectorAll('div')
+
+    divs.forEach((div) => {
+        const textNode = document.createTextNode("text")
+        var div_slider = div.querySelectorAll('.slider')[0];
+        div_slider.oninput = function() {
+            console.log(div_slider.value)
+            div.querySelectorAll('span')[0].innerHTML = div_slider.value;
+
+            fetch("http://"+window.location.host+"/api/servo", {
+                method: "POST",
+                body: '{"value":'+div_slider.value+'}',
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json())
+          .then((json) => console.log(json));
+
+        }
+    });
+</script>
