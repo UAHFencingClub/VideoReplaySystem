@@ -3,16 +3,11 @@ from flask import Flask, request, render_template
 app = Flask(__name__)
 
 if app.config["ENV"] == "development":
-	from FocuserDummy import Focuser
+	from FocuserDummy import Focuser as CameraController
 else:
-	from Focuser import Focuser
-	
-from gpiozero import Servo
+	from CameraController import CameraController
 
-servo = Servo(16)
-
-i2c_bus = 1
-focuser = Focuser(i2c_bus)
+camera_control = CameraController()
 
 @app.route('/')
 def index():
@@ -34,20 +29,21 @@ def server_controller():
 def controller_ui():
 	"""Builds a Web UI for controlling the camera by sending post requests"""
 
-	return render_template("controller_ui.html",focuser=focuser)
+	return render_template("controller_ui.html",camera_control=camera_control)
 
 @app.route('/api/camera', methods=['GET', 'POST'])
-def camera_control():
+def camera_api():
 	result = {}
 	if request.method == 'POST':
 		content = request.json
 		for key in content:
-			if not focuser.set(key,content[key]):
+			if not camera_control.set(key,content[key]):
 				return 'Invalid Key: {}'.format(key), 400
 
 	elif request.method == 'GET':
-		for opt in Focuser.opts:
-			result[opt] = focuser.get(opt)
+		print("CTL ", camera_control.control_elements)
+		for element in camera_control.control_elements:
+			result[element] = camera_control.get(element)
 
 	return result
 
