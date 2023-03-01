@@ -3,7 +3,7 @@ import numpy
 import glob
 
 
-stereo_camera = cv2.VideoCapture(2)
+stereo_camera = cv2.VideoCapture(0)
 
 def rescale_frame(frame, percent):
     width = int(frame.shape[1] * percent/ 100)

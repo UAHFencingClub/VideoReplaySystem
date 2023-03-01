@@ -20,7 +20,7 @@ images = glob.glob('*.jpg')
 CAMERA_WIDTH=1280
 CAMERA_HEIGHT=480
 
-stereo_camera = cv2.VideoCapture(2)
+stereo_camera = cv2.VideoCapture(0)
 
 stereo_camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
 stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
@@ -36,28 +36,40 @@ while True:
     grayLeft = cv2.cvtColor(leftImage, cv2.COLOR_RGB2GRAY)
 
     # Find the chess board corners
-    ret, cornersRight = cv2.findChessboardCorners(grayRight, (7,6),None)
-    ret, cornersLeft = cv2.findChessboardCorners(grayLeft, (7,6),None)
-
+    retR, cornersRight = cv2.findChessboardCorners(grayRight, (7,6),None)
+    retL, cornersLeft = cv2.findChessboardCorners(grayLeft, (7,6),None)
     # If found, add object points, image points (after refining them)
-    if ret == True:
+    if retR == True:
+        print('cap')
         objpoints.append(objp)
 
         cv2.cornerSubPix(grayRight,cornersRight,(11,11),(-1,-1),criteria)
         imgpoints.append(cornersRight)
+
+        # Draw and display the corners
+        cv2.drawChessboardCorners(rightImage, (7,6), cornersRight,ret)
+        cv2.imshow('imgR',rightImage)
         
+        cv2.waitKey(100)
+    else:
+        cv2.imshow('imgR',rightImage)
+        cv2.waitKey(100)
+
+    if retL == True:
+        print('cap')
+        objpoints.append(objp)
+
         cv2.cornerSubPix(grayLeft,cornersLeft,(11,11),(-1,-1),criteria)
         imgpoints.append(cornersLeft)
 
         # Draw and display the corners
         cv2.drawChessboardCorners(leftImage, (7,6), cornersLeft,ret)
-        cv2.drawChessboardCorners(rightImage, (7,6), cornersRight,ret)
-
-        cv2.imshow('imgL_C',leftImage)
-        cv2.imshow('imgR_C',rightImage)
-        cv2.waitKey(500)
-
-    cv2.imshow('imgL',grayLeft)
-    cv2.imshow('imgR',grayRight)
+        cv2.imshow('imgL',leftImage)
+        
+        cv2.waitKey(100)
+    else:
+        cv2.imshow('imgL',leftImage)
+        cv2.waitKey(100)
+    #cv2.imshow('imgR',grayRight)
 
 cv2.destroyAllWindows()
