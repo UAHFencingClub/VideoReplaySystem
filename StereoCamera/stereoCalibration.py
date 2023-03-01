@@ -10,7 +10,7 @@ objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 #images = glob.glob('*.jpg')
-stereo_camera = cv.VideoCapture(1)
+stereo_camera = cv.VideoCapture(2)
 ret1, frame = stereo_camera.read()
 stereo_camera.release()
 for fname in frame:

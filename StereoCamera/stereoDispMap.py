@@ -11,7 +11,8 @@ def rescale_frame(frame, percent):
     dim = (width, height)
     return cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
 
-CAMERA_WIDTH=640
+#2560X960@ 60fps/2560X720@60fps /1280X480@60fps /640X240@60fps 
+CAMERA_WIDTH=1280
 CAMERA_HEIGHT=480
 
 
