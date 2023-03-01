@@ -1,26 +1,20 @@
 #From https://gist.githubusercontent.com/aarmea/629e59ac7b640a60340145809b1c9013/raw/ad31081e10c48f5d7beeae762948683158f966b5/1-capture.py
+#modified for our use
 import numpy as np
 import cv2
+import time
 
-LEFT_PATH = "capture/left/{:06d}.jpg"
-RIGHT_PATH = "capture/right/{:06d}.jpg"
+LEFT_PATH = "L{:06d}.jpg"
+RIGHT_PATH = "R{:06d}.jpg"
 
+#2560X960@ 60fps/2560X720@60fps /1280X480@60fps /640X240@60fps 
 CAMERA_WIDTH = 1280
-CAMERA_HEIGHT = 720
+CAMERA_HEIGHT = 480
 
 # TODO: Use more stable identifiers
-left = cv2.VideoCapture(0)
-right = cv2.VideoCapture(1)
-
-# Increase the resolution
-left.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-left.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-right.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-right.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-
-# Use MJPEG to avoid overloading the USB 2.0 bus at this resolution
-left.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-right.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+stereo_camera = cv2.VideoCapture(2)
+stereo_camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
 # The distortion in the left and right edges prevents a good calibration, so
 # discard the edges
@@ -34,25 +28,32 @@ frameId = 0
 
 # Grab both frames first, then retrieve to minimize latency between cameras
 while(True):
-    if not (left.grab() and right.grab()):
-        print("No more frames")
-        break
-
-    _, leftFrame = left.retrieve()
-    leftFrame = cropHorizontal(leftFrame)
-    _, rightFrame = right.retrieve()
-    rightFrame = cropHorizontal(rightFrame)
-
-    cv2.imwrite(LEFT_PATH.format(frameId), leftFrame)
-    cv2.imwrite(RIGHT_PATH.format(frameId), rightFrame)
+    ret, frame = stereo_camera.read()
+    (imageHeight, imageWidth) = frame.shape[:2]
+    centerFrame = imageWidth//2
+    leftFrame = frame[0:imageHeight, 0:centerFrame]
+    rightFrame = frame[0:imageHeight, centerFrame:imageWidth]
+    
+    #leftFrame = cropHorizontal(leftFrame)
+    #rightFrame = cropHorizontal(rightFrame)
 
     cv2.imshow('left', leftFrame)
     cv2.imshow('right', rightFrame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+
+    cv2.imwrite(LEFT_PATH.format(frameId), leftFrame)
+    cv2.imwrite(RIGHT_PATH.format(frameId), rightFrame)
+    
+    key = cv2.waitKey(1)
+    if key & 0xFF == ord('q'):
         break
+    #elif key & 0xFF == ord('s'):
+    #    print("cap")
+    #    cv2.imwrite(LEFT_PATH.format(frameId), leftFrame)
+    #    cv2.imwrite(RIGHT_PATH.format(frameId), rightFrame)
+        
 
     frameId += 1
+    time.sleep(0.5)
 
-left.release()
-right.release()
+stereo_camera.release()
 cv2.destroyAllWindows()

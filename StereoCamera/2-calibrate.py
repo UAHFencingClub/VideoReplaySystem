@@ -1,4 +1,5 @@
 # from https://gist.githubusercontent.com/aarmea/629e59ac7b640a60340145809b1c9013/raw/ad31081e10c48f5d7beeae762948683158f966b5/2-calibrate.py
+#modified for our use
 
 import glob
 import os
@@ -8,7 +9,7 @@ import sys
 import numpy as np
 import cv2
 
-CHESSBOARD_SIZE = (7, 6)
+CHESSBOARD_SIZE = (6, 9)
 CHESSBOARD_OPTIONS = (cv2.CALIB_CB_ADAPTIVE_THRESH |
         cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_CB_FAST_CHECK)
 
