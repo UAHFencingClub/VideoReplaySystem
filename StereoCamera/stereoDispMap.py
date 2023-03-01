@@ -3,7 +3,7 @@ import numpy
 import glob
 
 
-stereo_camera = cv2.VideoCapture(1)
+stereo_camera = cv2.VideoCapture(2)
 
 def rescale_frame(frame, percent):
     width = int(frame.shape[1] * percent/ 100)
@@ -59,9 +59,10 @@ while True:
     disparity = stereo_compute.compute(grayLeft, grayRight)
     cv2.imshow('Disparity Map', disparity)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    key = cv2.waitKey(1)
+    if key & 0xFF == ord('q'):
         break
-    elif cv2.waitKey(1) & 0xFF == ord('s'):
+    elif key & 0xFF == ord('s'):
         counter = counter + 1
         leftFilename = "calibrationImage" + str(counter) + "L.png"
         rightFilename = "calibrationImage" + str(counter) + "R.png"
