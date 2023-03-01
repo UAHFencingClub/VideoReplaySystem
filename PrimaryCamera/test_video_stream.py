@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+#Source: https://github.com/raspberrypi/picamera2/blob/main/examples/mjpeg_server.py
+
 # Mostly copied from https://picamera.readthedocs.io/en/release-1.13/recipes2.html
 # Run this script, then point a web browser at http:<this-ip-address>:8000
 # Note: needs simplejpeg to be installed (pip3 install simplejpeg).
@@ -13,8 +15,6 @@ from threading import Condition
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
-from picamera2.encoders import H264Encoder
-from picamera2.outputs import FfmpegOutput
 
 PAGE = """\
 <html>
@@ -23,7 +23,7 @@ PAGE = """\
 </head>
 <body>
 <h1>Picamera2 MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="960" height="720" />
+<img src="stream.mjpg" width="640" height="480" />
 </body>
 </html>
 """
@@ -86,14 +86,9 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (960, 720)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 output = StreamingOutput()
-output = FfmpegOutput("-listen 1 -f mp4 -movflags frag_keyframe+empty_moov http://0.0.0.0:8080 -vcodec libx264 record.mp4", audio=True)
-#picam2.start_recording(JpegEncoder(), FileOutput(output))
-encoder = H264Encoder(10000000)
-#encoder= JpegEncoder()
-picam2.start_recording(encoder, output)
-
+picam2.start_recording(JpegEncoder(), FileOutput(output))
 
 try:
     address = ('', 8000)

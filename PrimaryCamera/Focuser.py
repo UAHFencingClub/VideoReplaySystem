@@ -16,6 +16,8 @@
     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
     OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
     OR OTHER DEALINGS IN THE SOFTWARE.
+
+    ^^ Original Liscense Some modifications have been made
 '''
 
 import sys
@@ -54,20 +56,20 @@ class Focuser:
     OPT_IRCUT   = "ircut"
 
     opts = {
-        # OPT_FOCUS : {
-        OPT_ZOOM  : {
+        OPT_FOCUS : {
             "REG_ADDR" : 0x01,
             "MIN_VALUE": 0,
             "MAX_VALUE": 20000,
             "DEF_VALUE": 0,
+            "STEP": 100,
             "RESET_ADDR": 0x01 + 0x0A,
         },
-        # OPT_ZOOM  : {
-        OPT_FOCUS : {    
+        OPT_ZOOM  : { 
             "REG_ADDR" : 0x00,
             "MIN_VALUE" : 0,
             "MAX_VALUE": 20000,
             "DEF_VALUE": 0,
+            "STEP": 100,
             "RESET_ADDR": 0x00 + 0x0A,
         },
         OPT_MOTOR_X : {
