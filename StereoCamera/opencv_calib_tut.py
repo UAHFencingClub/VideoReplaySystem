@@ -25,7 +25,7 @@ RIGHT_PATH = "R{:06d}.jpg"
 
 CHESS_SIZE=(6,4)
 
-stereo_camera = cv2.VideoCapture(0)
+stereo_camera = cv2.VideoCapture(1)
 
 stereo_camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
 stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
