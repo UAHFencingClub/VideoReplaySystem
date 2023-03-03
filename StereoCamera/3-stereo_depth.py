@@ -43,8 +43,8 @@ def cropHorizontal(image):
 # TODO: Try applying brightness/contrast/gamma adjustments to the images
 stereoMatcher = cv2.StereoBM_create()
 stereoMatcher.setMinDisparity(4)
-stereoMatcher.setNumDisparities(128)
-stereoMatcher.setBlockSize(21)
+stereoMatcher.setNumDisparities(32)
+stereoMatcher.setBlockSize(47)
 stereoMatcher.setROI1(leftROI)
 stereoMatcher.setROI2(rightROI)
 stereoMatcher.setSpeckleRange(16)
