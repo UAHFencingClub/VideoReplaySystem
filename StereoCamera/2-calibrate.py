@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import cv2
 
-CHESSBOARD_SIZE = (6, 9)
+CHESSBOARD_SIZE = (6, 4)
 CHESSBOARD_OPTIONS = (cv2.CALIB_CB_ADAPTIVE_THRESH |
         cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_CB_FAST_CHECK)
 
@@ -94,16 +94,20 @@ def readImagesAndFindChessboards(imageDirectory):
 (rightFilenames, rightObjectPoints, rightImagePoints, rightSize
         ) = readImagesAndFindChessboards(rightImageDir)
 
+#print("DEBUG LEFTFiles:",leftFilenames)
+#print("DEBUG RIGHTFiles:",rightFilenames)
+
 if leftSize != rightSize:
     print("Camera resolutions do not match")
     sys.exit(1)
 imageSize = leftSize
 
-filenames = list(set(leftFilenames) & set(rightFilenames))
-if (len(filenames) > MAX_IMAGES):
-    print("Too many images to calibrate, using {0} randomly selected images"
-            .format(MAX_IMAGES))
-    filenames = random.sample(filenames, MAX_IMAGES)
+filenames = list(set(leftFilenames) | set(rightFilenames))
+
+#if (len(filenames) > MAX_IMAGES):
+#    print("Too many images to calibrate, using {0} randomly selected images"
+#            .format(MAX_IMAGES))
+#    filenames = random.sample(filenames, MAX_IMAGES)
 filenames = sorted(filenames)
 print("Using these images:")
 print(filenames)
