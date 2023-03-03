@@ -33,7 +33,7 @@ stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
 # The distortion in the left and right edges prevents a good calibration, so
 # discard the edges
-CROP_WIDTH = 960
+CROP_WIDTH = 1280
 def cropHorizontal(image):
     return image[:,
             int((CAMERA_WIDTH-CROP_WIDTH)/2):
