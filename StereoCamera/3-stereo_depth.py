@@ -23,21 +23,13 @@ rightMapY = calibration["rightMapY"]
 rightROI = tuple(calibration["rightROI"])
 
 CAMERA_WIDTH = 1280
-CAMERA_HEIGHT = 720
+CAMERA_HEIGHT = 480
 
 # TODO: Use more stable identifiers
-left = cv2.VideoCapture(0)
-right = cv2.VideoCapture(1)
+stereo_camera = cv2.VideoCapture(0)
 
-# Increase the resolution
-left.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-left.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-right.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-right.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-
-# Use MJPEG to avoid overloading the USB 2.0 bus at this resolution
-left.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-right.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+stereo_camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
 # The distortion in the left and right edges prevents a good calibration, so
 # discard the edges
@@ -60,24 +52,15 @@ stereoMatcher.setSpeckleWindowSize(45)
 
 # Grab both frames first, then retrieve to minimize latency between cameras
 while(True):
-    if not left.grab() or not right.grab():
+    if not stereo_camera.grab():
         print("No more frames")
         break
 
-    _, leftFrame = left.retrieve()
-    leftFrame = cropHorizontal(leftFrame)
-    leftHeight, leftWidth = leftFrame.shape[:2]
-    _, rightFrame = right.retrieve()
-    rightFrame = cropHorizontal(rightFrame)
-    rightHeight, rightWidth = rightFrame.shape[:2]
-
-    if (leftWidth, leftHeight) != imageSize:
-        print("Left camera has different size than the calibration data")
-        break
-
-    if (rightWidth, rightHeight) != imageSize:
-        print("Right camera has different size than the calibration data")
-        break
+    ret, frame = stereo_camera.read()
+    (imageHeight, imageWidth) = frame.shape[:2]
+    centerFrame = imageWidth//2
+    leftFrame = frame[0:imageHeight, 0:centerFrame]
+    rightFrame = frame[0:imageHeight, centerFrame:imageWidth]
 
     fixedLeft = cv2.remap(leftFrame, leftMapX, leftMapY, REMAP_INTERPOLATION)
     fixedRight = cv2.remap(rightFrame, rightMapX, rightMapY, REMAP_INTERPOLATION)
@@ -92,6 +75,5 @@ while(True):
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-left.release()
-right.release()
+stereo_camera.release()
 cv2.destroyAllWindows()
