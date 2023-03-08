@@ -9,8 +9,11 @@ from picamera2.outputs import FileOutput
 from libcamera import Transform
 
 picam2 = Picamera2()
-video_config = picam2.create_video_configuration(transform=Transform(hflip=True,vflip=True))
+video_config = picam2.create_video_configuration(raw={"size": (1280, 720)},transform=Transform(hflip=True,vflip=True))
+#video_config["controls"]['FrameDurationLimits']=(25000,25000)
+
 picam2.configure(video_config)
+picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
 #output = FfmpegOutput('test.mp4', audio=True)
@@ -35,7 +38,11 @@ except KeyboardInterrupt:
     output3.stop()
     print('interrupted!')
 
+print('Stopping Encoder')
+picam2.stop_encoder()
+
 print('Stopping')
 #picam2.stop_recording()
+for output in encoder.output:
+    output.stop()
 picam2.stop()
-picam2.stop_encoder()
