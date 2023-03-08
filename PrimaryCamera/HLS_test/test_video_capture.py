@@ -18,9 +18,9 @@ picam2.set_controls({"FrameRate": 40})
 encoder = H264Encoder(10000000)
 #output = FfmpegOutput('test.mp4', audio=True)
 output1 = FfmpegOutput("-f hls -hls_time 4 -hls_list_size 20 -hls_flags delete_segments -hls_allow_cache 0 stream.m3u8")
-output2 = FileOutput()
+output2 = FileOutput("full.h264")
 output3 = CircularOutput()
-output3.fileoutput = "file.h264"
+output3.fileoutput = "circ.h264"
 encoder.output = [output1, output2, output3]
 
 #picam2.start_recording(encoder, output)
