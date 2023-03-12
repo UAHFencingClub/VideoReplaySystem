@@ -57,10 +57,6 @@ def gen():
 	while True:
 		yuv_frame = picam2.capture_array("lores")
 		rgb_frame = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV420p2RGB)
-		#ret, frame = webcam.read()
-		#if not ret:
-		#	yield (b'--frame\r\n'
-		#	   b'Contentcv2Type: image/jpeg\r\n\r\n\r\n')
 		_, jpeg_encoded = cv2.imencode('.jpg', rgb_frame)
 		data_encode = np.array(jpeg_encoded)
 		byte_encode = data_encode.tobytes()
