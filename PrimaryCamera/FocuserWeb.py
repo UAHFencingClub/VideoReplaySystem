@@ -1,9 +1,11 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, Response
 import time
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput, CircularOutput, FileOutput
 from libcamera import Transform
+import cv2
+import numpy as np
 
 app = Flask(__name__)
 
@@ -51,13 +53,32 @@ def replay():
 	
 	return result
 
+def gen():
+	while True:
+		yuv_frame = picam2.capture_array("lores")
+		rgb_frame = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV420p2RGB)
+		#ret, frame = webcam.read()
+		#if not ret:
+		#	yield (b'--frame\r\n'
+		#	   b'Contentcv2Type: image/jpeg\r\n\r\n\r\n')
+		_, jpeg_encoded = cv2.imencode('.jpg', rgb_frame)
+		data_encode = np.array(jpeg_encoded)
+		byte_encode = data_encode.tobytes()
+		yield (b'--frame\r\n'
+			   b'Content-Type: image/jpeg\r\n\r\n' + byte_encode + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+	return Response(gen(),
+					mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @app.route('/live')
 def live():
 	return render_template('live_feed.html')
 
 @app.route('/streams/<path:path>')
 def send_streams(path):
-    return send_from_directory('streams', path)
+	return send_from_directory('streams', path)
 
 @app.route('/api/servo', methods=['GET', 'POST'])
 def server_controller():
@@ -100,5 +121,5 @@ def camera_api():
 # print('Stopping')
 # #picam2.stop_recording()
 # for output in encoder.output:
-#     output.stop()
+#	 output.stop()
 # picam2.stop()
