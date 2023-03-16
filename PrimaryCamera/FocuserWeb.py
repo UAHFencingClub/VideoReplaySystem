@@ -7,6 +7,7 @@ from libcamera import Transform
 import cv2
 import numpy as np
 import os
+import subprocess, shlex
 
 app = Flask(__name__)
 
@@ -61,15 +62,10 @@ def replay(clip_id):
 		output3.start()
 		output3.stop()
 		#TODO implement audio buffer to dump
-		#TODO Start background ffmpeg task to convert to mp4
-
-		#maybe create a replay loading page that polls a path to get the data?
-		file_size = os.path.getsize(f'./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264')
-		#start udp listener
-		with Popen(["ffmpeg"]) as proc:
-			while proc.poll():
-				#udp data/filesize
-
+		
+		ffmpeg_encode_command = shlex.split(f"ffmpeg -i {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
+		#needs better error handling
+		subprocess.run(ffmpeg_encode_command,timeout=5,check=True)
 
 		result = redirect(f"/replay/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
 	elif clip_id is None:
