@@ -62,6 +62,15 @@ def replay(clip_id):
 		output3.stop()
 		#TODO implement audio buffer to dump
 		#TODO Start background ffmpeg task to convert to mp4
+
+		#maybe create a replay loading page that polls a path to get the data?
+		file_size = os.path.getsize(f'./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264')
+		#start udp listener
+		with Popen(["ffmpeg"]) as proc:
+			while proc.poll():
+				#udp data/filesize
+
+
 		result = redirect(f"/replay/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
 	elif clip_id is None:
 		clips_list = [clip for clip in os.listdir(f"./{REPLAY_CLIPS_DIRECTORY}") if clip.endswith(f".{REPLAY_CLIPS_FORMAT}")]
