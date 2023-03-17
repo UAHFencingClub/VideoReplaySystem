@@ -62,6 +62,22 @@ def replay(clip_id):
 		output3.start()
 		output3.stop()
 		#TODO implement audio buffer to dump
+		#Plan is to use a python queue and a thread to wirite audio to, and itertools to get the last few items in the queue.
+		''' Example for my reference
+			>>> import itertools
+			>>> from collections import deque
+			>>> q = deque('',maxlen=10)
+			>>> for i in range(10,20):
+			...     q.append(i)
+			... 
+			>>> q
+			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
+			>>> output = list(itertools.islice(q,7,10))
+			>>> output
+			[17, 18, 19]
+			>>> q
+			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
+		'''
 		
 		ffmpeg_encode_command = shlex.split(f"ffmpeg -i {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
 		#needs better error handling
