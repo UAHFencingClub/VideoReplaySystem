@@ -4,8 +4,10 @@ from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput, CircularOutput, FileOutput
 from libcamera import Transform
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 if app.config["ENV"] == "development":
 	from FocuserDummy import Focuser as CameraController
@@ -77,6 +79,10 @@ def controller_ui():
 
 	return render_template("controller_ui.html",camera_control=camera_control)
 
+@socketio.on('my event')
+def handle_my_custom_event(json):
+    print('received json: ' + str(json))
+
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
 	result = {}
@@ -93,7 +99,8 @@ def camera_api():
 
 	return result
 
-
+if __name__ == '__main__':
+    socketio.run(app)
 # print('Stopping Encoder')
 # picam2.stop_encoder()
 
