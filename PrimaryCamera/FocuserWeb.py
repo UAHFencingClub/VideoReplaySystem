@@ -95,9 +95,8 @@ def replay():
 
 def gen():
 	while True:
-		yuv_frame = picam2.capture_array("main")
-		rgb_frame = cv2.cvtColor(yuv_frame, cv2.COLOR_BGRA2RGB )
-		#rgb_frame = yuv_frame
+		bgra_frame = picam2.capture_array("main")
+		rgb_frame = cv2.cvtColor(bgra_frame, cv2.COLOR_BGRA2RGB )
 		_, jpeg_encoded = cv2.imencode('.jpg', rgb_frame)
 		data_encode = np.array(jpeg_encoded)
 		byte_encode = data_encode.tobytes()
