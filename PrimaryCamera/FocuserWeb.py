@@ -19,6 +19,9 @@ else:
 camera_control = CameraController()
 
 
+YOUTUBE_URL = os.environ.get('YOUTUBE_URL')
+YOUTUBE_KEY = os.environ.get('KEY')
+
 
 picam2 = Picamera2()
 video_config = picam2.create_video_configuration(raw={"size": (1280, 720)},transform=Transform(hflip=True,vflip=True))
@@ -28,11 +31,11 @@ picam2.configure(video_config)
 picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
-#output = FfmpegOutput('test.mp4', audio=True)
 output1 = FfmpegOutput("-f hls -hls_time 4 -hls_list_size 20 -hls_flags delete_segments -hls_allow_cache 0 streams/stream.m3u8")
+output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
 output2 = FileOutput('full.h264')
 output3 = CircularOutput()
-encoder.output = [output1, output2, output3]
+encoder.output = [output1, output2, output3, output_yt]
 
 # Start streaming to the network.
 picam2.start_encoder(encoder)
