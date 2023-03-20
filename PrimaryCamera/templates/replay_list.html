@@ -1,7 +1,9 @@
 <!doctype html>
 
 <div id="clips_list">
+    <ul>
     {% for clip in clips_list %}
-        <a href="{{ clip_path }}/{{ clip }}">{{ clip }}</a>
+        <li><a href="/replay?clip_id={{ clip }}">{{ clip }}</a></li>
     {% endfor %}   
+    </ul>
 </div>

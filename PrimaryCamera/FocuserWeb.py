@@ -47,18 +47,19 @@ picam2.start()
 def index():
 	return 'Server Works!'
 
-REPLAY_CLIPS_DIRECTORY='/clips'
+REPLAY_CLIPS_DIRECTORY='clips'
 REPLAY_CLIPS_FORMAT='mp4'
-@app.route(f'{REPLAY_CLIPS_DIRECTORY}/<path:path>')
+@app.route(f'/{REPLAY_CLIPS_DIRECTORY}/<path:path>')
 def get_replay_clip(path):
-	return send_from_directory('clip',path)
+	return send_from_directory(REPLAY_CLIPS_DIRECTORY,path)
 
-@app.route('/replay/<id>', methods=['GET', 'POST'])
-def replay(clip_id):
+@app.route('/replay', methods=['GET', 'POST'])
+def replay():
+	clip_id =  request.args.get('clip_id') 
 	if request.method == 'POST':
 		epoch = int(time.time())
 		replay_base_filename = f'Replay-{epoch}'
-		output3.fileoutput = f"./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264"
+		output3.fileoutput = f"{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264"
 		output3.start()
 		output3.stop()
 		#TODO implement audio buffer to dump
@@ -79,11 +80,11 @@ def replay(clip_id):
 			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
 		'''
 		
-		ffmpeg_encode_command = shlex.split(f"ffmpeg -i {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy {REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
+		ffmpeg_encode_command = shlex.split(f"ffmpeg -i ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
 		#needs better error handling
 		subprocess.run(ffmpeg_encode_command,timeout=5,check=True)
 
-		result = redirect(f"/replay/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
+		result = redirect(f"/replay?clip_id={replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
 	elif clip_id is None:
 		clips_list = [clip for clip in os.listdir(f"./{REPLAY_CLIPS_DIRECTORY}") if clip.endswith(f".{REPLAY_CLIPS_FORMAT}")]
 		result = render_template('replay_list.html',clips_list=clips_list, clip_path = REPLAY_CLIPS_DIRECTORY)
@@ -95,7 +96,8 @@ def replay(clip_id):
 def gen():
 	while True:
 		yuv_frame = picam2.capture_array("main")
-		rgb_frame = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV420p2RGB)
+		rgb_frame = cv2.cvtColor(yuv_frame, cv2.COLOR_BGRA2RGB )
+		#rgb_frame = yuv_frame
 		_, jpeg_encoded = cv2.imencode('.jpg', rgb_frame)
 		data_encode = np.array(jpeg_encoded)
 		byte_encode = data_encode.tobytes()
@@ -103,7 +105,7 @@ def gen():
 			   b'Content-Type: image/jpeg\r\n\r\n' + byte_encode + b'\r\n')
 
 @app.route('/live_mjpeg')
-def index():
+def mjpeg_live():
     return render_template('mjpeg_live.html')
 
 @app.route('/video_feed')
