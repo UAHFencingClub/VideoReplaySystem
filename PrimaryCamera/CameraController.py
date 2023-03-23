@@ -6,10 +6,10 @@ class CameraController:
         i2c_bus = 1
         self.focuser = Focuser(i2c_bus)
 
-        servo_step = 0.025
+        servo_step = 0.011111
 
-        servo_x = Servo(16)
-        servo_y = Servo(20)
+        servo_x = Servo(16,min_pulse_width=0.0005,max_pulse_width=0.0025)
+        servo_y = Servo(20,min_pulse_width=0.0005,max_pulse_width=0.0025)
 
         self.motor_elements = {
             "motor_x" : {

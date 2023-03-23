@@ -8,8 +8,10 @@ import cv2
 import numpy as np
 import os
 import subprocess, shlex
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 if app.config["ENV"] == "development":
 	from FocuserDummy import Focuser as CameraController
@@ -141,6 +143,15 @@ def controller_ui():
 
 	return render_template("controller_ui.html",camera_control=camera_control)
 
+@app.route("/socket_test")
+def socket_test():
+	return render_template("socket_io_test.html")
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	for key in json:
+		camera_control.set(key,json[key])
+
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
 	result = {}
@@ -157,7 +168,8 @@ def camera_api():
 
 	return result
 
-
+if __name__ == '__main__':
+    socketio.run(app)
 # print('Stopping Encoder')
 # picam2.stop_encoder()
 
