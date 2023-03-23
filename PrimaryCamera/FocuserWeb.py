@@ -79,9 +79,14 @@ def controller_ui():
 
 	return render_template("controller_ui.html",camera_control=camera_control)
 
+@app.route("/socket_test")
+def socket_test():
+	return render_template("socket_io_test.html")
+
 @socketio.on('my event')
 def handle_my_custom_event(json):
-    print('received json: ' + str(json))
+	for key in json:
+		camera_control.set(key,json[key])
 
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
