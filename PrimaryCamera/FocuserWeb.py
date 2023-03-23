@@ -32,10 +32,10 @@ picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
 output1 = FfmpegOutput("-f hls -hls_time 4 -hls_list_size 20 -hls_flags delete_segments -hls_allow_cache 0 streams/stream.m3u8")
-output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
+#output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
 output2 = FileOutput('full.h264')
-output3 = CircularOutput()
-encoder.output = [output1, output2, output3, output_yt]
+output3 = CircularOutput(buffersize=3000)
+encoder.output = [output1, output2, output3]
 
 # Start streaming to the network.
 picam2.start_encoder(encoder)
@@ -85,7 +85,7 @@ def replay():
 		
 		ffmpeg_encode_command = shlex.split(f"ffmpeg -i ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
 		#needs better error handling
-		subprocess.run(ffmpeg_encode_command,timeout=5,check=True)
+		subprocess.run(ffmpeg_encode_command,timeout=30,check=True)
 
 		result = redirect(f"/replay?clip_id={replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
 	elif clip_id is None:
