@@ -27,7 +27,7 @@ CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 480
 
 # TODO: Use more stable identifiers
-stereo_camera = cv2.VideoCapture(0)
+stereo_camera = cv2.VideoCapture(2)
 
 stereo_camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
 stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
@@ -37,11 +37,11 @@ stereo_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 stereoMatcher = cv2.StereoBM_create()
 stereoMatcher.setMinDisparity(-32)
 stereoMatcher.setNumDisparities(4*16)
-stereoMatcher.setBlockSize(15)
+stereoMatcher.setBlockSize(21)
 stereoMatcher.setROI1(leftROI)
 stereoMatcher.setROI2(rightROI)
 stereoMatcher.setSpeckleRange(16)
-#stereoMatcher.texture_threshold()
+stereoMatcher.setTextureThreshold(100)
 stereoMatcher.setSpeckleWindowSize(1500)
 
 
@@ -51,16 +51,19 @@ stereoMatcher.setSpeckleWindowSize(1500)
 # Setup SimpleBlobDetector parameters.
 params = cv2.SimpleBlobDetector_Params()
  
+params.filterByColor = True
+params.blobColor = 255
+
 # Change thresholds
-params.minThreshold = 10;
-params.maxThreshold = 200;
+params.minThreshold = 20;
+params.maxThreshold = 220;
  
 # Filter by Area.
 params.filterByArea = True
 params.minArea = 1500
  
 # Filter by Circularity
-params.filterByCircularity = True
+params.filterByCircularity = False
 params.minCircularity = 0.1
  
 # Filter by Convexity
@@ -68,8 +71,9 @@ params.filterByConvexity = True
 params.minConvexity = 0.87
  
 # Filter by Inertia
-params.filterByInertia = True
-params.minInertiaRatio = 0.01
+params.filterByInertia = False
+params.minInertiaRatio = 0.0001
+params.maxInertiaRatio = 0.01
  
 # Create a detector with the parameters
 ver = (cv2.__version__).split('.')
@@ -99,23 +103,18 @@ while(True):
     grayRight = cv2.cvtColor(fixedRight, cv2.COLOR_BGR2GRAY)
     depth = stereoMatcher.compute(grayLeft, grayRight)
 
-    depth_hist = np.histogram(depth,bins=256)
+    #Extra processing
+    depth_norm = cv2.normalize(depth, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+    depth_equi = cv2.equalizeHist(depth_norm)
+    depth_thresh = np.where(depth_equi < 100, 0, depth_equi)
 
-    numpy.savetxt("foo1.csv", depth_hist[0], delimiter=",")
-    numpy.savetxt("foo2.csv", depth_hist[1], delimiter=",")
+    keypoints = detector.detect(depth_equi)
+    im_with_keypoints = cv2.drawKeypoints(depth_equi, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-    exit(0)
-
-    #depth_8bit = cv2.convertScaleAbs(depth, alpha=(255.0/65535.0))
-    #keypoints = detector.detect(depth_8bit)
-    #im_with_keypoints = cv2.drawKeypoints(equi_depth, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-    #cv2.imshow('left', fixedLeft)
-    #cv2.imshow('right', fixedRight)
-
-    #equi_depth = cv2.equalizeHist(depth)
-    cv2.imshow('depth', equi_depth)
-    #cv2.imshow('depth', im_with_keypoints)
+    
+    #cv2.imshow('depth_equi', depth_equi)
+    cv2.imshow('depth_tresh', depth_thresh)
+    cv2.imshow('keypoints',im_with_keypoints)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
