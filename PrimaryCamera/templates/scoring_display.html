@@ -1,0 +1,32 @@
+<div class="container">
+    <div class="left_light"></div>
+    <div class="right_light"></div>
+    <div class="left_score"></div>
+    <div class="right_score"></div>
+    <div class="timer"></div>
+</div>
+
+<style>
+    .container {  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-rows: 1.1fr 0.9fr 0.6fr 1.4fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". . . . ."
+    ". left_light . right_light ."
+    ". left_score timer right_score ."
+    ". . . . .";
+}
+
+.left_light { grid-area: left_light; }
+
+.right_light { grid-area: right_light; }
+
+.left_score { grid-area: left_score; }
+
+.right_score { grid-area: right_score; }
+
+.timer { grid-area: timer; }
+
+</style>

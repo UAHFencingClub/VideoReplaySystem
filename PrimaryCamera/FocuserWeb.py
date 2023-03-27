@@ -147,10 +147,18 @@ def controller_ui():
 def socket_test():
 	return render_template("socket_io_test.html")
 
+@app.route("/score")
+def display_score():
+	return render_template("scoring_display.html")
+
 @socketio.on('my event')
 def handle_my_custom_event(json):
 	for key in json:
 		camera_control.set(key,json[key])
+
+@socketio.on('scoreing_update')
+def handle_scoreing_update(json):
+	pass
 
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
