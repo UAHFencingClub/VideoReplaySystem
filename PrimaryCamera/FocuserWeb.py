@@ -18,6 +18,8 @@ if app.config["ENV"] == "development":
 else:
 	from CameraController import CameraController
 
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 camera_control = CameraController()
 
 
