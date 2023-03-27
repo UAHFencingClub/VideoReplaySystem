@@ -60,6 +60,10 @@ REPLAY_CLIPS_FORMAT='mp4'
 def get_replay_clip(path):
 	return send_from_directory(REPLAY_CLIPS_DIRECTORY,path)
 
+@app.route('/images/<path:path>')
+def get_image(path):
+	return send_from_directory('images',path)
+
 @app.route('/replay', methods=['GET', 'POST'])
 def replay():
 	clip_id =  request.args.get('clip_id') 

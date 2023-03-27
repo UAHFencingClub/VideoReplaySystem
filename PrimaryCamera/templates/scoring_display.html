@@ -1,5 +1,6 @@
 <div class="container">
     <div class="left_light"></div>
+    <div class="logo"><img src="/images/logo.png"/></div>
     <div class="right_light"></div>
     <div class="left_score">0</div>
     <div class="right_score">0</div>
@@ -17,9 +18,21 @@
   background-color: black;
   grid-template-areas:
     ". . . . ."
-    ". left_light . right_light ."
+    ". left_light logo right_light ."
     ". left_score timer right_score ."
     ". . . . .";
+}
+
+.logo {
+  grid-area: logo;
+  background-color:  white;
+  outline: white solid;
+}
+
+img {
+    width: 100%; /* or any custom size */
+    height: 100%; 
+    object-fit: contain;
 }
 
 .left_light {
