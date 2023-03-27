@@ -8,7 +8,8 @@ import cv2
 import numpy as np
 import os
 import subprocess, shlex
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
+
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -162,9 +163,10 @@ def handle_my_custom_event(json):
 	for key in json:
 		camera_control.set(key,json[key])
 
-@socketio.on('scoreing_update')
+@socketio.on('scoring_update')
 def handle_scoreing_update(json):
-	pass
+	print(json)
+	emit('scoring_ui_update', json, broadcast=True)
 
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
