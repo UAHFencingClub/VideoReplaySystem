@@ -1,28 +1,36 @@
 #include <HardwareSerial.h>
 #include "WiFi.h"
+#include <ArduinoWebsockets.h>
 
 const char* ssid = "Student5";
 const char* password = "Go Chargers!";
+const char* websockets_server = "http://10.4.161.78:5000";
+
 int btnGPIO = 0;
 int btnState = false;
+
+using namespace websockets;
+
+WebsocketsClient clientWS;
+WiFiClient client;
 
 HardwareSerial SerialPort(2);
 int number = 0;
 void setup() {
 
-SerialPort.begin(38400,SERIAL_8N1, 16);
-Serial.begin(115200);
+  SerialPort.begin(38400,SERIAL_8N1, 16);
+  Serial.begin(115200);
 
-
-    pinMode(btnGPIO, INPUT);
-    Serial.println();
-    Serial.print("[WiFi] Connecting to ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, password);
-    int tryDelay = 500;
-    int numberOfTries = 20;
-    while (true) {
-        
+  pinMode(btnGPIO, INPUT);
+  Serial.println();
+  Serial.print("[WiFi-test] Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  
+  int tryDelay = 500;
+  int numberOfTries = 20;
+  bool is_not_connected = true;
+  while (is_not_connected) {
         switch(WiFi.status()) {
           case WL_NO_SSID_AVAIL:
             Serial.println("[WiFi] SSID not found");
@@ -44,7 +52,7 @@ Serial.begin(115200);
             Serial.println("[WiFi] WiFi is connected!");
             Serial.print("[WiFi] IP address: ");
             Serial.println(WiFi.localIP());
-            return;
+            is_not_connected = false;
             break;
           default:
             Serial.print("[WiFi] WiFi Status: ");
@@ -61,10 +69,24 @@ Serial.begin(115200);
         } else {
           numberOfTries--;
         }
-    }
-
-
+  }
+  delay(1000); 
+  Serial.println(" before websocket");
+  // Below is Websocket
+  if (clientWS.available()== true){
+    Serial.println("Available");
+  }
+  else{
+    Serial.println("Not available");
+  }
+  clientWS.connect(websockets_server); 
+  clientWS.send("Hello Server!");
+  Serial.println("after websocket");   
 }
+
+
+
+
 
 
 void printHex(int num, int precision) {
@@ -97,13 +119,16 @@ int right_light = 0;
 int left_white_light = 0;
 int right_white_light = 0;
 int holder =0;
+
 void loop() {
-  
-if ( holder == 0){
-  Serial.println("WiFi Connected!");
-  Serial.println(WiFi.localIP());
- holder =1;
-}
+  clientWS.poll();
+  if ( holder == 0){
+    Serial.println("WiFi Connected in loop!");
+    Serial.println(WiFi.localIP());
+    holder =1;
+  }
+
+
 
   while(SerialPort.available()){
     buf[buffer_place] = SerialPort.read();
