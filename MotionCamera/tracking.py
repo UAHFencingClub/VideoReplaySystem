@@ -1,7 +1,9 @@
 import cv2
 import sys
- 
+
+
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+print(cv2.__version__)
  
 if __name__ == '__main__' :
  
