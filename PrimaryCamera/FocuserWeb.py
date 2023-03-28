@@ -36,7 +36,7 @@ picam2.configure(video_config)
 picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
-output1 = FfmpegOutput("-f hls -hls_time 4 -hls_list_size 20 -hls_flags delete_segments -hls_allow_cache 0 streams/stream.m3u8")
+output1 = FfmpegOutput("-f mpegts udp://192.168.9.154:1234",audio=True)
 #output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
 output2 = FileOutput('full.h264')
 output3 = CircularOutput(buffersize=3000)
