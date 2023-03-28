@@ -168,6 +168,10 @@ def handle_scoreing_update(json):
 	print(json)
 	emit('scoring_ui_update', json, broadcast=True)
 
+@socketio.on('message')
+def handle_message(message):
+	print(message)
+
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
 	result = {}
