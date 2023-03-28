@@ -172,6 +172,13 @@ def handle_scoreing_update(json):
 def handle_message(message):
 	print(message)
 
+@app.route('/api/score',methods=['POST'])
+def score_api():
+	if request.method == 'POST':
+		content = request.json
+		emit('scoring_ui_update', content, broadcast=True)
+
+
 @app.route('/api/camera', methods=['GET', 'POST'])
 def camera_api():
 	result = {}
