@@ -36,7 +36,8 @@ picam2.configure(video_config)
 picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
-output1 = FfmpegOutput("-f mpegts udp://192.168.9.154:1234",audio=True)
+#ffplay -rtsp_flags listen rtsp://192.168.9.154:8888/live.sdp; # Listens on interface with the ip in the URL
+output1 = FfmpegOutput("-f rtsp -rtsp_transport tcp rtsp://192.168.9.154:8888/live.sdp")
 #output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
 output2 = FileOutput('full.h264')
 output3 = CircularOutput(buffersize=3000)
