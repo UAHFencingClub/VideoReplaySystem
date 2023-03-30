@@ -37,17 +37,14 @@ picam2.set_controls({"FrameRate": 40})
 
 encoder = H264Encoder(10000000)
 #Listen with https://github.com/aler9/rtsp-simple-server
-output1 = FfmpegOutput("-f rtsp -rtsp_transport tcp rtsp://localhost:8554/live.sdp")
-#output_yt = FfmpegOutput(f"-re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}")
-output2 = FileOutput('full.h264')
-output3 = CircularOutput(buffersize=3000)
-encoder.output = [output1, output2, output3]
+output_stream = FfmpegOutput("-f rtsp -rtsp_transport tcp rtsp://localhost:8554/live.sdp")
+output_circular = CircularOutput(buffersize=3000)
+encoder.output = [output_stream, output_circular]
 
 # Start streaming to the network.
 picam2.start_encoder(encoder)
 #The encoder automatically calls output.start()
-output2.stop()
-output3.stop()
+output_circular.stop()
 picam2.start()
 
 
