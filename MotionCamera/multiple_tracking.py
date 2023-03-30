@@ -9,9 +9,11 @@ import sys
 tracker_types = ['KCF','MOSSE', 'CSRT']
 tracker_type = tracker_types[2]
 
-Abram_face = cv2.CascadeClassifier('Abram_face.jpg')
-Andrea_face = cv2.CascadeClassifier('Andrea_face.jpg')
-
+Abram_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+#Andrea_face = cv2.CascadeClassifier('Andrea_face.jpg')
+facebox1 = (0,0,0,0)
+facebox2 = (0,0,0,0)
+ok1 = False
 
 if tracker_type == 'KCF':
     tracker1 = cv2.TrackerKCF_create()
@@ -65,18 +67,19 @@ while True:
     # Calculate Frames per second (FPS)
     #fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
+    if cv2.waitKey(1) & 0xFF == ord('1'): # if press SPACE bar
         gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2Gray)
-        ok1, facebox1 = Abram_face.detectMultiscale(gray_frame,1.1,3)
-        if ok1:
-            # Tracking success
-            p1 = (int(facebox1[0]), int(facebox1[1]))
-            p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
-            cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        else :
+        facebox1 = Abram_face.detectMultiscale(gray_frame,1.1,3)
+        #if ok1:
+        # Tracking success
+        p1 = (int(facebox1[0]), int(facebox1[1]))
+        p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
+        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+        #else :
             # Tracking failure
-            cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+         #   cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
         tracker1 = cv2.TrackerCSRT_create()
+        ok1 = tracker1.init(frame, facebox1)
     
     if ok1:
         # Tracking success
@@ -91,12 +94,12 @@ while True:
 
 
 
-    ok2 = False
-    if ok2:
+    #ok2 = False
+    #if ok2:
         # Tracking success
-        p1 = (int(bbox2[0]), int(bbox2[1]))
-        p2 = (int(bbox2[0] + bbox2[2]), int(bbox2[1] + bbox2[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+     #   p1 = (int(bbox2[0]), int(bbox2[1]))
+      #  p2 = (int(bbox2[0] + bbox2[2]), int(bbox2[1] + bbox2[3]))
+       # cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
     #else :
         # Tracking failure
     #    cv2.putText(frame, "Tracking failure detected on 2", (100,110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
@@ -105,12 +108,13 @@ while True:
     cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
     
     # Display FPS on frame
-    cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
+    #cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
         # Display result
     cv2.imshow("Tracking", frame)
 
     
-
+    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
+        break
 
 video.release()
 cv2.destroyAllWindows()
