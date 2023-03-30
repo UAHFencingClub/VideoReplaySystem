@@ -8,7 +8,7 @@ import numpy
 
 
 tracker_types = ['KCF','MOSSE', 'CSRT']
-tracker_type = tracker_types[2]
+tracker_type = tracker_types[0]
 
 face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 #Andrea_face = cv2.CascadeClassifier('Andrea_face.jpg')
@@ -81,16 +81,16 @@ while True:
             #p1 = (int(facebox1[0]), int(facebox1[1]))
             #p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
             #cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
-            tracker1 = cv2.TrackerCSRT_create()
+            tracker1 = cv2.TrackerKCF_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
         else:
             facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
             facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
-            tracker1 = cv2.TrackerCSRT_create()
+            tracker1 = cv2.TrackerKCF_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
-            tracker2 = cv2.TrackerCSRT_create()
+            tracker2 = cv2.TrackerKCF_create()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
 
@@ -100,7 +100,7 @@ while True:
         ok1, facebox1 = tracker1.update(frame)
         p1 = (int(facebox1[0]), int(facebox1[1]))
         p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
+        cv2.rectangle(frame, p1, p2, (0,255,255), 2, 1)
     else :
         # Tracking failure
         cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
