@@ -7,20 +7,25 @@ import sys
 
 
 tracker_types = ['KCF','MOSSE', 'CSRT']
-tracker_type = tracker_types[0]
+tracker_type = tracker_types[2]
 
+Abram_face = cv2.CascadeClassifier('Abram_face.jpg')
+Andrea_face = cv2.CascadeClassifier('Andrea_face.jpg')
 
 
 if tracker_type == 'KCF':
-    tracker = cv2.legacy.TrackerKCF_create()
+    tracker1 = cv2.TrackerKCF_create()
+    tracker2 = cv2.TrackerKCF_create()
 elif tracker_type == 'MOSSE':
-    tracker = cv2.legacy.TrackerMOSSE_create()
+    tracker1 = cv2.TrackerMOSSE_create()
+    tracker2 = cv2.TrackerMOSSE_create()
 elif tracker_type == "CSRT":
-    tracker = cv2.legacy.TrackerCSRT_create()
+    tracker1 = cv2.TrackerCSRT_create()
+    tracker2 = cv2.TrackerCSRT_create()
 
-trackers = cv2.legacy.MultiTracker_create()
 
-video = cv2.VideoCapture(1) # for using CAM
+
+video = cv2.VideoCapture(0) # for using CAM
 time.sleep(1.0)
  
 # Exit if video not opened.
@@ -34,7 +39,12 @@ if not ok:
     print ('Cannot read video file')
     sys.exit()
 
+#select initial bounding boxes
+#bbox1 = cv2.selectROI(frame, False)
+#bbox2 = cv2.selectROI(frame, False)
 
+#ok = tracker1.init(frame, bbox1)
+#ok = tracker2.init(frame, bbox2)
 
 while True:
     ok, frame = video.read()
@@ -42,30 +52,55 @@ while True:
     if not ok:
         break
 
-    timer = cv2.getTickCount()
+    #timer = cv2.getTickCount()
 
     # Update tracker
-    #ok, bbox = tracker.update(frame)
-
+    #ok1, bbox1 = tracker1.update(frame)
+    #ok2, bbox2 = tracker2.update(frame)
+    #print(bbox1)
+    #print(bbox2)
     #frame = imutils.resize(frame, 600)
 
-    ok, boxes = trackers.update(frame)
 
     # Calculate Frames per second (FPS)
-    fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
+    #fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
-    for i, box in enumerate(boxes):
-        (x,y,w,h) = [int(v) for v in box]
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-        if ok:
+    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
+        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2Gray)
+        ok1, facebox1 = Abram_face.detectMultiscale(gray_frame,1.1,3)
+        if ok1:
             # Tracking success
-            p1 = (int(box[0]), int(box[1]))
-            p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
+            p1 = (int(facebox1[0]), int(facebox1[1]))
+            p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
             cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
         else :
             # Tracking failure
-            cv2.putText(frame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+            cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+        tracker1 = cv2.TrackerCSRT_create()
+    
+    if ok1:
+        # Tracking success
+        ok1, facebox1 = tracker1.update(frame)
+        p1 = (int(facebox1[0]), int(facebox1[1]))
+        p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
+        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+    else :
+        # Tracking failure
+        cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+
+
+
+
+    ok2 = False
+    if ok2:
+        # Tracking success
+        p1 = (int(bbox2[0]), int(bbox2[1]))
+        p2 = (int(bbox2[0] + bbox2[2]), int(bbox2[1] + bbox2[3]))
+        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+    #else :
+        # Tracking failure
+    #    cv2.putText(frame, "Tracking failure detected on 2", (100,110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+    
 
     cv2.putText(frame, tracker_type + " Tracker", (100,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50),2)
     
@@ -74,14 +109,8 @@ while True:
         # Display result
     cv2.imshow("Tracking", frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
-        break
+    
 
-    if cv2.waitKey(1) & 0xFF == ord("s"):
-        box = cv2.selectROI("selectROI",frame,True,True)
-        trackers.add(tracker,frame,box)
-        #box = cv2.selectROI("selectROI",frame,False,True)
-        #trackers.add(tracker,frame,box)
 
 video.release()
 cv2.destroyAllWindows()
