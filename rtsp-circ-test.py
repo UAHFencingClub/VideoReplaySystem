@@ -1,5 +1,5 @@
-#https://www.appsloveworld.com/bestanswer/raspberry-pi/11/how-do-i-buffer-and-capture-an-rtsp-stream-to-disk-based-on-a-trigger
-#some modifications based on https://stackoverflow.com/questions/75425406/creating-video-from-images-using-pyav
+# primarilly based on [1] https://www.appsloveworld.com/bestanswer/raspberry-pi/11/how-do-i-buffer-and-capture-an-rtsp-stream-to-disk-based-on-a-trigger
+# [2] https://stackoverflow.com/questions/75425406/creating-video-from-images-using-pyav
 import av
 import time
 import queue
@@ -32,6 +32,7 @@ class CircularRTSPRecorder(Thread):
             # Catch other pyav errors if you want, just for example
             print (Error)
 
+        # [2]
         in_stream = self.video_source.streams.video[0]
         codec_name = in_stream.codec_context.name  # Get the codec name from the input video stream.
         #fps = in_stream.codec_context.rate  # Get the framerate from the input video stream.
@@ -53,8 +54,7 @@ class CircularRTSPRecorder(Thread):
 
                         if self.record_event.is_set():
                             for frame in self.frame_buffer:
-                                #self.out_stream.encode(frame)
-                                #self.video_sink.close()
+                                # [2]
                                 img_frame = frame.to_image()
                                 out_frame = av.VideoFrame.from_image(img_frame)  # Note: to_image and from_image is not required in this specific example.
                                 out_packet = self.out_stream.encode(out_frame)  # Encode video frame
