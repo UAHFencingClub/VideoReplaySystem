@@ -4,16 +4,19 @@ import imutils
 import time
 import cv2
 import sys
+import numpy
 
 
 tracker_types = ['KCF','MOSSE', 'CSRT']
 tracker_type = tracker_types[2]
 
-Abram_face = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 #Andrea_face = cv2.CascadeClassifier('Andrea_face.jpg')
 facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
-ok1 = False
+initial_find1 = False
+initial_find2 = False
+#ok1 = False
 
 if tracker_type == 'KCF':
     tracker1 = cv2.TrackerKCF_create()
@@ -68,31 +71,54 @@ while True:
     #fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
     if cv2.waitKey(1) & 0xFF == ord('1'): # if press SPACE bar
-        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2Gray)
-        facebox1 = Abram_face.detectMultiscale(gray_frame,1.1,3)
-        #if ok1:
+        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        faces = face_detect.detectMultiScale(gray_frame,1.1,3)
+        print(faces)
+        num_faces = numpy.shape(faces)
         # Tracking success
-        p1 = (int(facebox1[0]), int(facebox1[1]))
-        p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        #else :
-            # Tracking failure
-         #   cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
-        tracker1 = cv2.TrackerCSRT_create()
-        ok1 = tracker1.init(frame, facebox1)
+        if num_faces[0] < 2:
+            facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
+            #p1 = (int(facebox1[0]), int(facebox1[1]))
+            #p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
+            #cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
+            tracker1 = cv2.TrackerCSRT_create()
+            ok1 = tracker1.init(frame, facebox1)
+            initial_find1 = True
+        else:
+            facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
+            facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
+            tracker1 = cv2.TrackerCSRT_create()
+            ok1 = tracker1.init(frame, facebox1)
+            initial_find1 = True
+            tracker2 = cv2.TrackerCSRT_create()
+            ok2 = tracker2.init(frame, facebox2)
+            initial_find2 = True
+
     
-    if ok1:
+    if facebox1 and initial_find1:
         # Tracking success
         ok1, facebox1 = tracker1.update(frame)
         p1 = (int(facebox1[0]), int(facebox1[1]))
         p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+        cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
     else :
         # Tracking failure
         cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
 
 
+
+
+
+    if facebox2 and initial_find2:
+        # Tracking success
+        ok2, facebox2 = tracker2.update(frame)
+        p1 = (int(facebox2[0]), int(facebox2[1]))
+        p2 = (int(facebox2[0] + facebox2[2]), int(facebox2[1] + facebox2[3]))
+        cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
+    else :
+        # Tracking failure
+        cv2.putText(frame, "Tracking failure detected on 2", (100,110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
     #ok2 = False
     #if ok2:
