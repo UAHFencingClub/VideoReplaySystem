@@ -1,9 +1,5 @@
 from flask import Flask, request, render_template, send_from_directory, Response, redirect
 import time
-from picamera2 import Picamera2
-from picamera2.encoders import H264Encoder
-from picamera2.outputs import FfmpegOutput, CircularOutput, FileOutput
-from libcamera import Transform
 import cv2
 import numpy as np
 import os
@@ -24,30 +20,6 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 camera_control = CameraController()
 
 
-YOUTUBE_URL = os.environ.get('YOUTUBE_URL')
-YOUTUBE_KEY = os.environ.get('KEY')
-
-
-picam2 = Picamera2()
-video_config = picam2.create_video_configuration(raw={"size": (1280, 720)},transform=Transform(hflip=True,vflip=True))
-#video_config["controls"]['FrameDurationLimits']=(25000,25000)
-
-picam2.configure(video_config)
-picam2.set_controls({"FrameRate": 40})
-
-encoder = H264Encoder(10000000)
-#Listen with https://github.com/aler9/rtsp-simple-server
-output_stream = FfmpegOutput("-f rtsp -rtsp_transport tcp rtsp://localhost:8554/live.sdp")
-output_circular = CircularOutput(buffersize=3000)
-encoder.output = [output_stream, output_circular]
-
-# Start streaming to the network.
-picam2.start_encoder(encoder)
-#The encoder automatically calls output.start()
-output_circular.stop()
-picam2.start()
-
-
 
 @app.route('/')
 def index():
@@ -65,13 +37,11 @@ def get_image(path):
 
 @app.route('/replay', methods=['GET', 'POST'])
 def replay():
-	clip_id =  request.args.get('clip_id') 
+	clip_id = request.args.get('clip_id') 
 	if request.method == 'POST':
-		epoch = int(time.time())
-		replay_base_filename = f'Replay-{epoch}'
-		output3.fileoutput = f"{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264"
-		output3.start()
-		output3.stop()
+		time_string = time.strftime("%Y-%m-%d_%H%M%S", time.localtime(time.time()))
+		replay_base_filename = f'Replay-{time_string}'
+		clip_file = f"{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264"
 		#TODO implement audio buffer to dump
 		#Plan is to use a python queue and a thread to wirite audio to, and itertools to get the last few items in the queue.
 		''' Example for my reference
@@ -89,10 +59,6 @@ def replay():
 			>>> q
 			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
 		'''
-		
-		ffmpeg_encode_command = shlex.split(f"ffmpeg -i ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264 -c:v copy ./{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.{REPLAY_CLIPS_FORMAT}")
-		#needs better error handling
-		subprocess.run(ffmpeg_encode_command,timeout=30,check=True)
 
 		result = redirect(f"/replay?clip_id={replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
 	elif clip_id is None:
@@ -103,58 +69,20 @@ def replay():
 	
 	return result
 
-def gen():
-	while True:
-		bgra_frame = picam2.capture_array("main")
-		rgb_frame = cv2.cvtColor(bgra_frame, cv2.COLOR_BGRA2RGB )
-		_, jpeg_encoded = cv2.imencode('.jpg', rgb_frame)
-		data_encode = np.array(jpeg_encoded)
-		byte_encode = data_encode.tobytes()
-		yield (b'--frame\r\n'
-			   b'Content-Type: image/jpeg\r\n\r\n' + byte_encode + b'\r\n')
-
-@app.route('/live_mjpeg')
-def mjpeg_live():
-    return render_template('mjpeg_live.html')
-
-@app.route('/video_feed')
-def video_feed():
-	return Response(gen(),
-					mimetype='multipart/x-mixed-replace; boundary=frame')
-
 @app.route('/live')
 def live():
 	return render_template('live_feed.html')
 
-@app.route('/streams/<path:path>')
-def send_streams(path):
-	return send_from_directory('streams', path)
-
-@app.route('/api/servo', methods=['GET', 'POST'])
-def server_controller():
-	result = {"lol":"lmao"}
-	if request.method == 'POST':
-		content = request.json
-		servo.value = content["value"]
-
-	elif request.method == 'GET':
-		result = render_template('servo_test_ui.html')
-
-	return result
-
 @app.route('/controller')
 def controller_ui():
 	"""Builds a Web UI for controlling the camera by sending post requests"""
-
 	return render_template("controller_ui.html",camera_control=camera_control)
-
-@app.route("/socket_test")
-def socket_test():
-	return render_template("socket_io_test.html")
 
 @app.route("/score")
 def display_score():
 	return render_template("scoring_display.html")
+
+
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
@@ -166,9 +94,7 @@ def handle_scoreing_update(json):
 	print(json)
 	emit('scoring_ui_update', json, broadcast=True)
 
-@socketio.on('message')
-def handle_message(message):
-	print(message)
+
 
 @app.route('/api/score',methods=['POST'])
 def score_api():
@@ -195,11 +121,3 @@ def camera_api():
 
 if __name__ == '__main__':
     socketio.run(app)
-# print('Stopping Encoder')
-# picam2.stop_encoder()
-
-# print('Stopping')
-# #picam2.stop_recording()
-# for output in encoder.output:
-#	 output.stop()
-# picam2.stop()
