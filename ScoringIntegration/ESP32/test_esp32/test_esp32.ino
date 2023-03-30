@@ -1,17 +1,19 @@
 #include <HardwareSerial.h>
 #include "WiFi.h"
 #include <ArduinoWebsockets.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 const char* ssid = "Student5";
 const char* password = "***REMOVED***";
-const char* websockets_server = "http://10.4.161.78:5000";
+// const char* websockets_server = "http://10.4.161.78:5000";
 
 int btnGPIO = 0;
 int btnState = false;
 
-using namespace websockets;
+//using namespace websockets;
 
-WebsocketsClient clientWS;
+//WebsocketsClient clientWS;
 WiFiClient client;
 
 HardwareSerial SerialPort(2);
@@ -71,17 +73,20 @@ void setup() {
         }
   }
   delay(1000); 
-  Serial.println(" before websocket");
+
+
+  
+//  Serial.println(" before websocket");
   // Below is Websocket
-  if (clientWS.available()== true){
-    Serial.println("Available");
-  }
-  else{
-    Serial.println("Not available");
-  }
-  clientWS.connect(websockets_server); 
-  clientWS.send("Hello Server!");
-  Serial.println("after websocket");   
+//  if (clientWS.available()== true){
+//    Serial.println("Available");
+//  }
+//  else{
+//    Serial.println("Not available");
+//  }
+//  clientWS.connect(websockets_server); 
+//  clientWS.send("Hello Server!");
+//  Serial.println("after websocket");   
 }
 
 
@@ -106,14 +111,17 @@ int my_place = 0;
 int value[300];
 int l_ones_score = 0;
 int l_tens_score = 0;
+int left_score = 0;
 int r_ones_score = 0;
 int r_tens_score = 0;
+int right_score = 0;
 int l_yellow = 0;
 int l_red = 0;
 int r_yellow = 0;
 int time_min = 0;
 int time_tens = 0;
 int time_ones = 0;
+int my_time = 0;
 int left_light = 0;
 int right_light = 0;
 int left_white_light = 0;
@@ -121,13 +129,43 @@ int right_white_light = 0;
 int holder =0;
 
 void loop() {
-  clientWS.poll();
+
+  StaticJsonDocument<200> doc;
+    doc["time"] = my_time;
+    doc["left_score"] = left_score;
+    doc["right_score"] = right_score;
+    doc["left_touch"] = left_light;
+    doc["right_touch"] = right_light;
+    doc["right_offtarget"] = right_white_light;
+    doc["left_offtarget"] = left_white_light;
+    
+//Serial.print("Left white ");
+//Serial.println(left_white_light);
+//Serial.print("Right white ");
+//Serial.println(right_white_light);
+
+  
+ // JsonArray data = doc.createNestedArray("leftscore");
+ // leftscore.add(l_tens_score);
+ // leftscore.add(l_ones_score);
+  //data.add(2.302038);
+  String mydata;
+  serializeJson(doc, mydata);
+  //serializeJson(doc, Serial);
+  
+
+HTTPClient http;
+
+  http.begin("http://10.4.145.139:5000/api/score");  //Specify destination for HTTP request
+   http.addHeader("Content-Type", "application/json");             //Specify content-type header
+  
+ int httpResponseCode = http.POST(mydata);  
+
   if ( holder == 0){
     Serial.println("WiFi Connected in loop!");
     Serial.println(WiFi.localIP());
     holder =1;
   }
-
 
 
   while(SerialPort.available()){
@@ -140,32 +178,32 @@ void loop() {
   {
     int i = buffer_place;
     if ( active && ( (buf[i]==0x30) && (buf[(i+1)%4]==0x77) && (buf[(i+2)%4]==0x30)&& (buf[(i+3)%4]==0x4) ) ){
-      //Serial.println("hello");
+     // Serial.println("Inside signal formatting");
       for(int a=0; a<my_place; a++){
-    //printHex(value[a],2);
+    printHex(value[a],2);
     value[a];
       }
       //Serial.println("thats all folks");
-//      Serial.println();
-//      Serial.println();
+      Serial.println();
+
+
+        
       if( (value[0]==0x01) && (value[1]==0x13) && (value[2]==0x44)){
         // right/left score, left yellow/red card, & right yellow card
-//       Serial.print("The time is ");
-//       Serial.print(time_min);
-//       Serial.print(":");
-//       Serial.print(time_tens);
-//       Serial.println(time_ones);
+
         r_ones_score = value[5] - 0x30;
         r_tens_score = value[4] - 0x30;
-//        Serial.print("The right score is ");
-//        Serial.print(r_tens_score);
-//        Serial.println(r_ones_score);
+        right_score = 10*r_tens_score + r_ones_score;
+
         
         l_ones_score = value[8] - 0x30;
         l_tens_score = value[7] - 0x30;
-//        Serial.print("The left score is ");
-//        Serial.print(l_tens_score);
-//        Serial.println(l_ones_score);
+        left_score = 10*l_tens_score + l_ones_score;
+        //doc["left tens score"] = l_tens_score;
+        //doc["left ones score"] = l_ones_score;
+        //int httpResponseCode = http.POST(mydata);  
+
+        //Serial.println(l_ones_score);
 
         l_yellow = value[17] - 0x30;
         l_red = value[19] - 0x30;
@@ -187,6 +225,7 @@ void loop() {
         else{
 //          Serial.println("Right No Card");
         }
+        int httpResponseCode = http.POST(mydata); 
         
       }
      else if( (value[0]==0x01) && (value[1]==0x13) && (value[2]==0x52)){
@@ -194,24 +233,18 @@ void loop() {
        time_min = value[5] - 0x30; 
        time_tens = value[7] - 0x30; 
        time_ones = value[8] - 0x30;
-//       Serial.println();
-//       Serial.print("The time is ");
-//       Serial.print(time_min);
-//       Serial.print(":");
-//       Serial.print(time_tens);
-//       Serial.println(time_ones);
+       my_time = 60*time_min + (10*time_tens + time_ones);
+
 
         r_ones_score = value[18] - 0x30;
         r_tens_score = value[17] - 0x30;
-//        Serial.print("The right score is ");
-//        Serial.print(r_tens_score);
-//        Serial.println(r_ones_score);
+        right_score = 10*r_tens_score + r_ones_score;
+
 
         l_ones_score = value[21] - 0x30;
         l_tens_score = value[20] - 0x30;
-//        Serial.print("The left score is ");
-//        Serial.print(l_tens_score);
-//        Serial.println(l_ones_score);
+        left_score = 10*l_tens_score + l_ones_score;
+
 
         l_yellow = value[30] - 0x30;
         l_red = value[32] - 0x30;
@@ -233,17 +266,18 @@ void loop() {
         else{
 //          Serial.println("Right No Card");
         }
+        int httpResponseCode = http.POST(mydata); 
       }
       else if( (value[0]==0x01) && (value[1]==0x13) && (value[2]==0x42)){
         // time is paused & increment/decrement time
         r_ones_score = value[18] - 0x30;
         r_tens_score = value[17] - 0x30;
-//        Serial.print("The right score is ");
-//        Serial.print(r_tens_score);
-//        Serial.println(r_ones_score);
+        right_score = 10*r_tens_score + r_ones_score;
+
         
         l_ones_score = value[21] - 0x30;
         l_tens_score = value[20] - 0x30;
+        left_score = 10*l_tens_score + l_ones_score;
 //        Serial.print("The left score is ");
 //        Serial.print(l_tens_score);
 //        Serial.println(l_ones_score);
@@ -251,20 +285,7 @@ void loop() {
        time_min = value[5] - 0x30; 
        time_tens = value[7] - 0x30; 
        time_ones = value[8] - 0x30;
-//       Serial.println();
-//       Serial.print("The time is ");
-//       Serial.print(time_min);
-//       Serial.print(":");
-//       Serial.print(time_tens);
-//       Serial.println(time_ones);
-       
-//        Serial.print("The right score is ");
-//        Serial.print(r_tens_score);
-//        Serial.println(r_ones_score);
-
-//        Serial.print("The left score is ");
-//        Serial.print(l_tens_score);
-//        Serial.println(l_ones_score);
+       my_time = 60*time_min + (10*time_tens + time_ones);
 
 
         if (l_yellow == 1){
@@ -282,19 +303,14 @@ void loop() {
         else{
 //          Serial.println("Right No Card");
         }
+        int httpResponseCode = http.POST(mydata); 
       }
       else if( (value[0]==0x01) && (value[1]==0x13) && (value[2]==0x4E)){
         // time reset indicator
        time_min = value[5] - 0x30; 
        time_tens = value[7] - 0x30; 
        time_ones = value[8] - 0x30;
-//       Serial.println();
-//       Serial.print("The time is ");
-//       Serial.print(time_min);
-//       Serial.print(":");
-//       Serial.print(time_tens);
-//       Serial.println(time_ones);
-
+       my_time = 60*time_min + (10*time_tens + time_ones);
 
 
        if (l_yellow == 1){
@@ -313,7 +329,7 @@ void loop() {
           Serial.println("Right No Card");
         }
 
-        
+        int httpResponseCode = http.POST(mydata); 
       }
       else if( (value[0]==0x01) && (value[1]==0x14) && (value[2]==0x52)){
         // lights
@@ -321,20 +337,25 @@ void loop() {
         right_light = value[5] - 0x30;
         if (left_light == 1){
           Serial.println("LEFT SCORE!!!!");
-        }
+          }
         else if (right_light == 1){
           Serial.println("Right SCORE!!!!");
-      }
+          }
         left_white_light = value[9] - 0x30;
         right_white_light = value[7] - 0x30;
-        if (left_white_light == 1){
-          Serial.println("LEFT SCORE!!!!");
-        }
-        else if (right_white_light == 1){
-          Serial.println("Right SCORE!!!!");
-      }
+        if (left_white_light == 1 ){
+         // Serial.println("LEFT Offtarget!!!!");
+         // Serial.println(left_white_light);
+          }
+        if (right_white_light == 1){
+         // Serial.println("Right Offtarget!!!!");
+         // Serial.println(right_white_light);
+          }
+          int httpResponseCode = http.POST(mydata); 
+
       
       }
+     
     my_place=0;
       active = false;
       
