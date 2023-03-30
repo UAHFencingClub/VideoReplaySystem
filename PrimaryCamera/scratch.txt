@@ -1,9 +1,0 @@
-ffmpeg -stream_loop -1 -i ./PrimaryCamera/clips/Replay-1679343490.mp4 \ 
- -r 24 -g 48 -pix_fmt yuv420p -x264-params keyint=48:min-keyint=48:scenecut=-1 \ 
- -s 1280x720 -b:v 1500k -b:a 128k -ar 44100 -acodec aac \ 
- -vcodec libx264 -preset superfast -bufsize 960k -crf 28 -threads 2 \ 
- -f flv rtmp://a.rtmp.youtube.com/live2/xx 
-
-
-
- -pix_fmt yuvj420p -x264-params keyint=48:min-keyint=48:scenecut=-1 -b:v 4500k -b:a 128k -ar 44100 -acodec aac -vcodec libx264 -preset medium -crf 28 -threads 4 -f flv rrtmp://a.rtmp.youtube.com/live2/x
