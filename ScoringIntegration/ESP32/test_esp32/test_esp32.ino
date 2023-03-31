@@ -73,21 +73,6 @@ void setup() {
   delay(1000); 
 }
 
-
-
-
-
-
-void printHex(int num, int precision) {
-  char tmp[16];
-  char format[128];
-
-  sprintf(format, " %%.%dX", precision);
-
-  sprintf(tmp, format, num);
-  Serial.print(tmp);
-}
-
 bool active = true;
 int buffer_place = 0;
 byte buf[4];
@@ -111,6 +96,12 @@ int right_light = 0;
 int left_white_light = 0;
 int right_white_light = 0;
 int holder =0;
+
+const byte numBytes = 32;
+byte receivedBytes[numBytes];
+byte numReceived = 0;
+
+boolean newData = false;
 
 // Default Header 0x01 0x13 0x44
 // End Header? 0x30 0x77 0x30 0x04
@@ -243,4 +234,51 @@ void loop() {
     my_place=0;
     active = false;  
   }
+}
+
+void printHex(int num, int precision) {
+  char tmp[16];
+  char format[128];
+
+  sprintf(format, " %%.%dX", precision);
+
+  sprintf(tmp, format, num);
+  Serial.print(tmp);
+}
+
+// Example 6 - Receiving binary data
+// https://forum.arduino.cc/t/serial-input-basics-updated/382007/3
+
+void recvBytesWithStartEndMarkers() {
+    static boolean recvInProgress = false;
+    static byte ndx = 0;
+    byte startMarker = 0x01;
+    byte endMarker = 0x04;
+    byte rb;
+   
+
+    while (Serial.available() > 0 && newData == false) {
+        rb = Serial.read();
+
+        if (recvInProgress == true) {
+            if (rb != endMarker) {
+                receivedBytes[ndx] = rb;
+                ndx++;
+                if (ndx >= numBytes) {
+                    ndx = numBytes - 1;
+                }
+            }
+            else {
+                receivedBytes[ndx] = '\0'; // terminate the string
+                recvInProgress = false;
+                numReceived = ndx;  // save the number for use when printing
+                ndx = 0;
+                newData = true;
+            }
+        }
+
+        else if (rb == startMarker) {
+            recvInProgress = true;
+        }
+    }
 }
