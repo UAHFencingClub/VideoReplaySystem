@@ -1,6 +1,3 @@
-from imutils.video import VideoStream
-import argparse
-import imutils
 import time
 import cv2
 import sys
@@ -8,9 +5,9 @@ import numpy
 
 
 tracker_types = ['KCF','MOSSE', 'CSRT']
-tracker_type = tracker_types[0]
+tracker_type = tracker_types[2]
 
-face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_detect = cv2.CascadeClassifier('haarcascade_fullbody.xml')
 
 facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
@@ -28,7 +25,7 @@ elif tracker_type == "CSRT":
     tracker2 = cv2.TrackerCSRT_create()
 
 
-#Starts the video and lets the camera focus for a second
+# Starts the video and lets the camera focus for a second
 video = cv2.VideoCapture(0) # for using CAM
 time.sleep(1.0)
  
@@ -57,7 +54,7 @@ while True:
 
     # Gets the initial bounding boxes for the faces detected in the frame
     if cv2.waitKey(1) & 0xFF == ord('s'): # runs if the face tracking algorithm
-        
+
         #Converting the frame to gray tone so that the face detection can work
         gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 
@@ -70,20 +67,21 @@ while True:
         # Tracking success
         if num_faces[0] < 2:
             facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
-            tracker1 = cv2.TrackerKCF_create()
+            tracker1 = cv2.TrackerCSRT_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
+        # If there is more than two faces in frame draw bounding boxes for the first two
         else:
             facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
             facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
-            tracker1 = cv2.TrackerKCF_create()
+            tracker1 = cv2.TrackerCSRT_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
-            tracker2 = cv2.TrackerKCF_create()
+            tracker2 = cv2.TrackerCSRT_create()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
 
-    
+    # Tracking the first object
     if facebox1 and initial_find1:
         # Tracking success
         ok1, facebox1 = tracker1.update(frame)
@@ -94,7 +92,7 @@ while True:
         # Tracking failure
         cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
-
+    # Tracking the second object
     if facebox2 and initial_find2:
         # Tracking success
         ok2, facebox2 = tracker2.update(frame)
