@@ -1,16 +1,15 @@
-from imutils.video import VideoStream
 import argparse
-import imutils
 import time
 import cv2
 import sys
 import numpy
 
-
+#15.
 tracker_types = ['KCF','MOSSE', 'CSRT']
-tracker_type = tracker_types[0]
+tracker_type = tracker_types[2]
 
 face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
 
 facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
@@ -18,18 +17,15 @@ initial_find1 = False
 initial_find2 = False
 
 if tracker_type == 'KCF':
-    tracker1 = cv2.TrackerKCF_create()
-    tracker2 = cv2.TrackerKCF_create()
+    TrackingFunction = cv2.TrackerKCF_create
 elif tracker_type == 'MOSSE':
-    tracker1 = cv2.TrackerMOSSE_create()
-    tracker2 = cv2.TrackerMOSSE_create()
+    TrackingFunction = cv2.TrackerMOSSE_create
 elif tracker_type == "CSRT":
-    tracker1 = cv2.TrackerCSRT_create()
-    tracker2 = cv2.TrackerCSRT_create()
+    TrackingFunction = cv2.TrackerCSRT_create
 
 
 #Starts the video and lets the camera focus for a second
-video = cv2.VideoCapture(0) # for using CAM
+video = cv2.VideoCapture(2) # for using CAM
 time.sleep(1.0)
  
 # Exit if video not opened.
@@ -58,30 +54,16 @@ while True:
     # Gets the initial bounding boxes for the faces detected in the frame
     if cv2.waitKey(1) & 0xFF == ord('s'): # runs if the face tracking algorithm
         
-        #Converting the frame to gray tone so that the face detection can work
-        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-
-        #Detecting the faces in the frame
-        faces = face_detect.detectMultiScale(gray_frame,1.1,3)
-        print(faces)
-
+        facebox1 = cv2.selectROI(frame, False)
+        facebox2 = cv2.selectROI(frame, False)
         #Checking the number of faces in the frame
-        num_faces = numpy.shape(faces)
         # Tracking success
-        if num_faces[0] < 2:
-            facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
-            tracker1 = cv2.TrackerKCF_create()
-            ok1 = tracker1.init(frame, facebox1)
-            initial_find1 = True
-        else:
-            facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
-            facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
-            tracker1 = cv2.TrackerKCF_create()
-            ok1 = tracker1.init(frame, facebox1)
-            initial_find1 = True
-            tracker2 = cv2.TrackerKCF_create()
-            ok2 = tracker2.init(frame, facebox2)
-            initial_find2 = True
+        tracker1 = TrackingFunction()
+        ok1 = tracker1.init(frame, facebox1)
+        initial_find1 = True
+        tracker2 = TrackingFunction()
+        ok2 = tracker2.init(frame, facebox2)
+        initial_find2 = True
 
     
     if facebox1 and initial_find1:
