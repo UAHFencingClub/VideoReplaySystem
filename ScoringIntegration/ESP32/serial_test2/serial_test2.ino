@@ -14,7 +14,24 @@ void setup() {
 
 void loop() {
     recvBytesWithStartEndMarkers();
+    int header = getSG12Header();
+    //printHex(header,4);
+    //Serial.println();
     showNewData();
+}
+
+void printHex(int num, int precision) {
+  char tmp[16];
+  char format[128];
+
+  sprintf(format, " %%.%dX", precision);
+
+  sprintf(tmp, format, num);
+  Serial.print(tmp);
+}
+
+uint16_t getSG12Header() {
+  return receivedBytes[0]<<8 + receivedBytes[1];
 }
 
 void recvBytesWithStartEndMarkers() {
