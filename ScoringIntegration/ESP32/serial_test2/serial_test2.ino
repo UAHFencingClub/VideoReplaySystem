@@ -20,8 +20,8 @@ void loop() {
 void recvBytesWithStartEndMarkers() {
     static boolean recvInProgress = false;
     static byte ndx = 0;
-    byte startMarker = 0x3C;
-    byte endMarker = 0x3E;
+    byte startMarker = 0x01;
+    byte endMarker = 0x04;
     byte rb;
    
 
