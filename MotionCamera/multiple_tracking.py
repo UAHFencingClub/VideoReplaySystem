@@ -26,7 +26,7 @@ elif tracker_type == "CSRT":
 
 
 # Starts the video and lets the camera focus for a second
-video = cv2.VideoCapture(0) # for using CAM
+video = cv2.VideoCapture(1) # for using CAM
 time.sleep(1.0)
  
 # Exit if video not opened.
@@ -65,7 +65,10 @@ while True:
         #Checking the number of faces in the frame
         num_faces = numpy.shape(faces)
         # Tracking success
-        if num_faces[0] < 2:
+        if num_faces[0] < 1:
+            initial_find1 = False
+            initial_find2 = False
+        elif num_faces[0] < 2:
             facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
             tracker1 = cv2.TrackerCSRT_create()
             ok1 = tracker1.init(frame, facebox1)
