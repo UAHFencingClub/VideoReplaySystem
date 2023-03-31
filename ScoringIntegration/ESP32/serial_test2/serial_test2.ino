@@ -1,13 +1,15 @@
 // Example 6 - Receiving binary data
 // https://forum.arduino.cc/t/serial-input-basics-updated/382007/3
-
+#include <HardwareSerial.h>
 const byte numBytes = 32;
 byte receivedBytes[numBytes];
 byte numReceived = 0;
 
 boolean newData = false;
+HardwareSerial SerialPort(2);
 
 void setup() {
+  SerialPort.begin(38400,SERIAL_8N1, 16);
     Serial.begin(115200);
     Serial.println("<Arduino is ready>");
 }
@@ -25,8 +27,8 @@ void recvBytesWithStartEndMarkers() {
     byte rb;
    
 
-    while (Serial.available() > 0 && newData == false) {
-        rb = Serial.read();
+    while (SerialPort.available() > 0 && newData == false) {
+        rb = SerialPort.read();
 
         if (recvInProgress == true) {
             if (rb != endMarker) {
