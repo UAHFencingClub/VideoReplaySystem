@@ -4,6 +4,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
+
+
 const char* ssid = "Student5";
 const char* password = "Go Chargers!";
 
@@ -117,6 +119,8 @@ int holder =0;
 // Timer Reset Header 0x01 0x13 0x4E
 // Lights Header 0x01 0x14 0x52
 // Data Indicator 0x30 
+// Start Flag 0x01
+// Stop Flag 0x04
 
 void loop() {
 
