@@ -8,7 +8,6 @@ from getkey import getkey, keys
 import itertools
 from collections import deque
 
-
 class CircularRTSPRecorder(Thread):
 
     def __init__(self, source_url: str = "", sink_url: str = ""):
@@ -17,13 +16,12 @@ class CircularRTSPRecorder(Thread):
         self.sink_url = sink_url
         self.av_instance = None
         self.connected = False
-        self.frame_buffer = deque('',maxlen=1000)
+        self.frame_buffer = deque('',maxlen=60*5)
         self.record_event = Event()
 
     def open_rtsp_stream(self):
         try:
             self.video_source = av.open(self.source_url, 'r')
-            self.video_sink = av.open(self.sink_url, 'w')
             self.connected = True
             print ("Connected")
         except av.error.HTTPUnauthorizedError:
@@ -32,6 +30,25 @@ class CircularRTSPRecorder(Thread):
             # Catch other pyav errors if you want, just for example
             print (Error)
 
+    def dump_buffer(self):
+        print("Dumping")
+        for frame in self.record_buffer:
+            # [2]
+            print("Writing Frame to File", frame)
+            img_frame = frame.to_image()
+            out_frame = av.VideoFrame.from_image(img_frame)  # Note: to_image and from_image is not required in this specific example.
+            out_packet = self.out_stream.encode(out_frame)  # Encode video frame
+            self.video_sink.mux(out_packet)  # "Mux" the encoded frame (add the encoded frame to MP4 file).
+        
+        # Flush the encoder
+        print("finished dump")
+        out_packet = self.out_stream.encode(None)
+        self.video_sink.mux(out_packet)
+        self.video_sink.close()
+        print("Saved and Closed")
+
+    def open_recording_source(self):
+        self.video_sink = av.open(self.sink_url, 'w')
         # [2]
         in_stream = self.video_source.streams.video[0]
         codec_name = in_stream.codec_context.name  # Get the codec name from the input video stream.
@@ -41,6 +58,8 @@ class CircularRTSPRecorder(Thread):
         self.out_stream.width = in_stream.codec_context.width  # Set frame width to be the same as the width of the input stream
         self.out_stream.height = in_stream.codec_context.height  # Set frame height to be the same as the height of the input stream
         self.out_stream.pix_fmt = in_stream.codec_context.pix_fmt
+
+        self.recording_thread = Thread(target=self.dump_buffer)
 
     def run(self):
         self.open_rtsp_stream()
@@ -53,18 +72,10 @@ class CircularRTSPRecorder(Thread):
                             self.frame_buffer.append(frame)
 
                         if self.record_event.is_set():
-                            for frame in self.frame_buffer:
-                                # [2]
-                                img_frame = frame.to_image()
-                                out_frame = av.VideoFrame.from_image(img_frame)  # Note: to_image and from_image is not required in this specific example.
-                                out_packet = self.out_stream.encode(out_frame)  # Encode video frame
-                                self.video_sink.mux(out_packet)  # "Mux" the encoded frame (add the encoded frame to MP4 file).
-                            
-                            # Flush the encoder
-                            out_packet = self.out_stream.encode(None)
-                            self.video_sink.mux(out_packet)
-                            self.video_sink.close()
-                            print("Saved and Closed")
+                            self.record_event.clear()
+                            self.open_recording_source()
+                            self.record_buffer = self.frame_buffer.copy()
+                            self.recording_thread.start()
             else:
                 time.sleep(10)
 
