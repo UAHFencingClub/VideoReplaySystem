@@ -1,8 +1,13 @@
-// Example 6 - Receiving binary data
-// https://forum.arduino.cc/t/serial-input-basics-updated/382007/3
+// Some code pulled from https://forum.arduino.cc/t/serial-input-basics-updated/382007/3
+
+//#define DEBUG
+
 #include <HardwareSerial.h>
 #include <ArduinoJson.h>
+#include "WiFi.h"
+#include <HTTPClient.h>
 
+//SG12 info
 #define SG12_DEF 0x1344 //25 bytes of data
 
 //Figure out what different timer headers mean, I think one is stopped, another is pause time and another is running, not confident
@@ -13,6 +18,10 @@
 #define SG12_LIGHTS 0x1452 //7
 #define SG12_DATAMARK 0x30
 
+#define SG12_START 0x01
+#define SG12_END   0x04
+
+//Serial Data related variables
 const byte numBytes = 32;
 byte receivedBytes[numBytes];
 byte numReceived = 0;
@@ -22,13 +31,27 @@ HardwareSerial SerialPort(2);
 
 StaticJsonDocument<200> sg12_data;
 
+//Wifi related variables
+const char* ssid = "Student5";
+const char* password = "***REMOVED***";
+
+int btnGPIO = 0;
+int btnState = false;
+
+WiFiClient client;
+
+#define HTTP_SERVER_IP String("10.4.145.139:5000")
+
 void setup() {
     SerialPort.begin(38400,SERIAL_8N1, 16);
     Serial.begin(115200);
     Serial.println("<Arduino is ready>");
+
+    connectToWiFi();
 }
 
 void loop() {
+
     recvBytesWithStartEndMarkers();
     int header = getSG12Header();
     if (newData) {
@@ -68,21 +91,37 @@ void loop() {
           break;
         }
       }
-      serializeJsonPretty(sg12_data, Serial);
+      //serializeJsonPretty(sg12_data, Serial);
+      //Serial.println();
+      //Serial.println();
+
+      HTTPClient http;
+
+      String serialized_sg12_data;
+      serializeJson(sg12_data, serialized_sg12_data);
+
+      http.begin("http://"+HTTP_SERVER_IP+"/api/score");               //Specify destination for HTTP request
+      http.addHeader("Content-Type", "application/json");             //Specify content-type header
+  
+      int httpResponseCode = http.POST(serialized_sg12_data);
+
+
+      #ifdef DEBUG
+      Serial.print("HTTP Response: ");
+      Serial.println(httpResponseCode,DEC);
+
+      serializeJsonPretty(sg12_data,Serial);
+
       Serial.println();
       Serial.println();
+
+      showNewData();  
+
+      Serial.println("#######################################");
+      #endif
+      
       newData = false;
     }
-}
-
-void printHex(int num, int precision) {
-  char tmp[16];
-  char format[128];
-
-  sprintf(format, " %%.%dX", precision);
-
-  sprintf(tmp, format, num);
-  Serial.print(tmp);
 }
 
 uint16_t getSG12Header() {
@@ -90,11 +129,64 @@ uint16_t getSG12Header() {
   return buf;
 }
 
+void connectToWiFi() {
+  pinMode(btnGPIO, INPUT);
+  Serial.println();
+  Serial.print("[WiFi-test] Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  
+  int tryDelay = 500;
+  int numberOfTries = 20;
+  bool is_not_connected = true;
+  while (is_not_connected) {
+        switch(WiFi.status()) {
+          case WL_NO_SSID_AVAIL:
+            Serial.println("[WiFi] SSID not found");
+            break;
+          case WL_CONNECT_FAILED:
+            Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
+            return;
+            break;
+          case WL_CONNECTION_LOST:
+            Serial.println("[WiFi] Connection was lost");
+            break;
+          case WL_SCAN_COMPLETED:
+            Serial.println("[WiFi] Scan is completed");
+            break;
+          case WL_DISCONNECTED:
+            Serial.println("[WiFi] WiFi is disconnected");
+            break;
+          case WL_CONNECTED:
+            Serial.println("[WiFi] WiFi is connected!");
+            Serial.print("[WiFi] IP address: ");
+            Serial.println(WiFi.localIP());
+            is_not_connected = false;
+            break;
+          default:
+            Serial.print("[WiFi] WiFi Status: ");
+            Serial.println(WiFi.status());
+            break;
+        }
+        delay(tryDelay);
+        
+        if(numberOfTries <= 0){
+          Serial.print("[WiFi] Failed to connect to WiFi!");
+          // Use disconnect function to force stop trying to connect
+          WiFi.disconnect();
+          return;
+        } else {
+          numberOfTries--;
+        }
+  }
+  delay(1000); 
+}
+
 void recvBytesWithStartEndMarkers() {
     static boolean recvInProgress = false;
     static byte ndx = 0;
-    byte startMarker = 0x01;
-    byte endMarker = 0x04;
+    byte startMarker = SG12_START;
+    byte endMarker = SG12_END;
     byte rb;
    
 
@@ -124,7 +216,17 @@ void recvBytesWithStartEndMarkers() {
     }
 }
 
-/* //For debugging, not needed otherwise
+#ifdef DEBUG
+void printHex(int num, int precision) {
+  char tmp[16];
+  char format[128];
+
+  sprintf(format, " %%.%dX", precision);
+
+  sprintf(tmp, format, num);
+  Serial.print(tmp);
+}
+
 void showNewData() {
     if (newData == true) {
         Serial.print("This just in (HEX values)... ");
@@ -136,4 +238,4 @@ void showNewData() {
         newData = false;
     }
 }
-*/
+#endif
