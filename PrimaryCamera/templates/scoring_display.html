@@ -94,12 +94,41 @@ img {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <script>
-  var socket = io();
+  var socket = io("/score");
 
-  socket.on('scoring_ui_update', (data) => {
-    console.log('Update UI');
-    for (const [key, value] of Object.entries(data)) {
-      document.getElementsByClassName(key)[0].innerHTML = value;
+  socket.on('scoring_ui_update', (score_data) => {
+    //Left Light
+    if (score_data.left_touch) {
+      document.getElementsByClassName("left_light")[0].style.backgroundColor = "red";
+    } else if (score_data.left_offtarget) {
+      document.getElementsByClassName("left_light")[0].style.backgroundColor = "white";
+    } else {
+      document.getElementsByClassName("left_light")[0].style.backgroundColor = "black";
     }
+
+    //Right Light
+    if (score_data.right_touch) {
+      document.getElementsByClassName("right_light")[0].style.backgroundColor = "green";
+    } else if (score_data.right_offtarget) {
+      document.getElementsByClassName("right_light")[0].style.backgroundColor = "white";
+    } else {
+      document.getElementsByClassName("right_light")[0].style.backgroundColor = "black";
+    }
+
+    if (typeof score_data.left_score == "number") {
+      document.getElementsByClassName("left_score")[0].innerHTML = score_data.left_score;
+    } else {
+      document.getElementsByClassName("left_score")[0].innerHTML = "INV";
+    }
+
+    if (typeof score_data.right_score == "number") {
+      document.getElementsByClassName("right_score")[0].innerHTML = score_data.right_score;
+    } else {
+      document.getElementsByClassName("right_score")[0].innerHTML = "INV";
+    }
+    
+    const minutes = String(Math.floor(score_data.time / 60));
+    const seconds = String(score_data.time - minutes * 60);
+    document.getElementsByClassName("timer")[0].innerHTML = minutes + ":" + seconds.padStart(2,"0");
   });
 </script>
