@@ -67,6 +67,7 @@ html, body {
 
 const create = () => {
 	const video = document.getElementById('video');
+	const media_source = 'https://'+hostname+':8889/combined';
 	var playback_slider = document.getElementById("PlaybackSpeedSlider");
 	var playback_input = document.getElementById("PlaybackSpeedInput");
 
@@ -91,7 +92,7 @@ const create = () => {
 			}
 		});
 
-		hls.loadSource('https://'+hostname+':8889/cam/index.m3u8');
+		hls.loadSource(media_source+'/index.m3u8');
 		hls.attachMedia(video);
 
 		video.play();
@@ -99,9 +100,9 @@ const create = () => {
 	} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 		// since it's not possible to detect timeout errors in iOS,
 		// wait for the playlist to be available before starting the stream
-		fetch('https://'+hostname+':8889/cam/stream.m3u8')
+		fetch(media_source+'/stream.m3u8')
 			.then(() => {
-				video.src = 'https://'+hostname+':8889/cam/index.m3u8';
+				video.src = media_source+'/index.m3u8';
 				video.play();
 			});
 	}
