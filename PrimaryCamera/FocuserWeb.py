@@ -94,13 +94,13 @@ def handle_scoreing_update(json):
 	print(json)
 	emit('scoring_ui_update', json, broadcast=True)
 
-
-
+@socketio.on('scoring_ui_update',namespace="/score")
 @app.route('/api/score',methods=['POST'])
 def score_api():
 	if request.method == 'POST':
 		content = request.json
-		emit('scoring_ui_update', content, broadcast=True)
+		emit('scoring_ui_update', content, broadcast=True, namespace="/score")
+	return ('', 204)
 
 
 @app.route('/api/camera', methods=['GET', 'POST'])
