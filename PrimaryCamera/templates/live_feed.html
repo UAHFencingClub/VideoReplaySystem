@@ -29,6 +29,10 @@ html, body {
 const create = () => {
 	const video = document.getElementById('video');
 
+	const {
+  		host, hostname, href, origin, pathname, port, protocol, search
+	} = window.location
+
 	// always prefer hls.js over native HLS.
 	// this is because some Android versions support native HLS
 	// but don't support fMP4s.
@@ -45,7 +49,7 @@ const create = () => {
 			}
 		});
 
-		hls.loadSource('https://192.168.9.153:8889/cam/index.m3u8');
+		hls.loadSource('https://'+hostname+':8889/cam/index.m3u8');
 		hls.attachMedia(video);
 
 		video.play();
@@ -53,9 +57,9 @@ const create = () => {
 	} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 		// since it's not possible to detect timeout errors in iOS,
 		// wait for the playlist to be available before starting the stream
-		fetch('https://192.168.9.153:8889/cam/stream.m3u8')
+		fetch('https://'+hostname+':8889/cam/stream.m3u8')
 			.then(() => {
-				video.src = 'https://192.168.9.153:8889/cam/index.m3u8';
+				video.src = 'https://'+hostname+':8889/cam/index.m3u8';
 				video.play();
 			});
 	}
