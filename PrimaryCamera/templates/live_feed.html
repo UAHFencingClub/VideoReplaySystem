@@ -67,13 +67,14 @@ html, body {
 
 const create = () => {
 	const video = document.getElementById('video');
-	const media_source = 'https://'+hostname+':8889/combined';
 	var playback_slider = document.getElementById("PlaybackSpeedSlider");
 	var playback_input = document.getElementById("PlaybackSpeedInput");
 
 	const {
   		host, hostname, href, origin, pathname, port, protocol, search
 	} = window.location
+
+	const media_source = 'https://'+hostname+':8889/combined';
 
 	// always prefer hls.js over native HLS.
 	// this is because some Android versions support native HLS
