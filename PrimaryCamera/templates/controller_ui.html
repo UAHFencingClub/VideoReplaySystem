@@ -1,0 +1,34 @@
+<!doctype html>
+
+<div id="camera_control">
+    {% for element, value in camera_control.control_elements.items(): %}
+        <div id="{{ element }}">
+            <input type="range"
+                min="{{ value["MIN_VALUE"] }}" 
+                max="{{  value["MAX_VALUE"] }}" 
+                value="{{ camera_control.get(element) }}" 
+                class="slider" 
+                id="{{ element }}_slider"
+                step="{{ value["STEP"] if "STEP" in value.keys() else 0 }}">
+            <p>{{ element }}: <span id="{{ element }}_value">{{ camera_control.get(element) }}</span></p>
+        </div>
+    {% endfor %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script>
+    var socket = io();
+    
+    let divs = document.querySelectorAll('div')
+
+    divs.forEach((div) => {
+        const textNode = document.createTextNode("text")
+        var div_slider = div.querySelectorAll('.slider')[0];
+        div_slider.onchange = function(e) {
+            div.querySelectorAll('span')[0].innerHTML = div_slider.value;
+
+            e.preventDefault();
+            socket.emit('my event', JSON.parse('{"'+div.id+'":'+div_slider.value+'}') );
+        }
+    });
+</script>
