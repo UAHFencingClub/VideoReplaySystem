@@ -161,6 +161,7 @@ paths:
     # flip vertically
     rpiCameraVFlip: true
     rpiCameraFPS: 60
-  audio:
-    #ffmpeg -f alsa -channels 1 -sample_rate 44100 -i hw:1,0 -f rtsp -rtsp_transport tcp rtsp://localhost:8554/audio
+    runOnReady: ffmpeg -i rtsp://localhost:$RTSP_PORT/$RTSP_PATH -itsoffset +0.7 -f alsa -channels 1 -sample_rate 44100 -i hw:1,0 -c:v copy -max_muxing_queue_size 1024 -f rtsp rtsp://localhost:$RTSP_PORT/combined
+    runOnReadyRestart: yes
+  combined:
     source: publisher
