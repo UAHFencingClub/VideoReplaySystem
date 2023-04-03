@@ -16,6 +16,45 @@ html, body {
 	height: 75%;
 	background: black;
 }
+
+.slidecontainer {
+  width: 10%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
 </style>
 </head>
 <body>
@@ -28,6 +67,8 @@ html, body {
 
 const create = () => {
 	const video = document.getElementById('video');
+	var playback_slider = document.getElementById("PlaybackSpeedSlider");
+	var playback_input = document.getElementById("PlaybackSpeedInput");
 
 	const {
   		host, hostname, href, origin, pathname, port, protocol, search
@@ -38,7 +79,8 @@ const create = () => {
 	// but don't support fMP4s.
 	if (Hls.isSupported()) {
 		const hls = new Hls({
-			maxLiveSyncPlaybackRate: 1.5,
+			maxLiveSyncPlaybackRate: 1,
+			backBufferLength: 200,
 		});
 
 		hls.on(Hls.Events.ERROR, (evt, data) => {
@@ -63,11 +105,31 @@ const create = () => {
 				video.play();
 			});
 	}
+
+	//Slider Controller
+	playback_input.value = playback_slider.value; // Display the default slider value
+
+	// Update the current slider value (each time you drag the slider handle)
+	playback_slider.oninput = function() {
+		playback_input.value = this.value;
+		video.playbackRate = parseFloat(this.value);
+	}
+	
+	playback_input.oninput = function() {
+		playback_slider.value = this.value;	
+		video.playbackRate = parseFloat(this.value);
+	}
 };
 
 window.addEventListener('DOMContentLoaded', create);
 
+
 </script>
+
+<div class="slidecontainer">
+	<input type="range" min="0.1" max="1" value="1" step="0.1" class="slider" id="PlaybackSpeedSlider">
+</div>
+<input type="number" id="PlaybackSpeedInput" min="0.1" max="1" step="0.1" value="1">
 
 </body>
 </html>
