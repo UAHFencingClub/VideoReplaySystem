@@ -36,26 +36,6 @@ externalAuthenticationURL:
 
 # Enable the HTTP API.
 api: no
-# Address of the API listener.
-apiAddress: 127.0.0.1:9997
-
-# Enable Prometheus-compatible metrics.
-metrics: no
-# Address of the metrics listener.
-metricsAddress: 127.0.0.1:9998
-
-# Enable pprof-compatible endpoint to monitor performances.
-pprof: no
-# Address of the pprof listener.
-pprofAddress: 127.0.0.1:9999
-
-# Command to run when a client connects to the server.
-# This is terminated with SIGINT when a client disconnects from the server.
-# The following environment variables are available:
-# * RTSP_PORT: server port
-runOnConnect:
-# Restart the command if it exits suddenly.
-runOnConnectRestart: no
 
 ###############################################
 # RTSP parameters
@@ -101,20 +81,6 @@ authMethods: [basic, digest]
 
 # Disable support for the RTMP protocol.
 rtmpDisable: yes
-# Address of the RTMP listener. This is needed only when encryption is "no" or "optional".
-rtmpAddress: :1935
-# Encrypt connections with TLS (RTMPS).
-# Available values are "no", "strict", "optional".
-rtmpEncryption: "no"
-# Address of the RTMPS listener. This is needed only when encryption is "strict" or "optional".
-rtmpsAddress: :1936
-# Path to the server key. This is needed only when encryption is "strict" or "optional".
-# This can be generated with:
-# openssl genrsa -out server.key 2048
-# openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
-rtmpServerKey: server.key
-# Path to the server certificate. This is needed only when encryption is "strict" or "optional".
-rtmpServerCert: server.crt
 
 ###############################################
 # HLS parameters
@@ -173,44 +139,6 @@ hlsTrustedProxies: []
 
 # Disable support for the WebRTC protocol.
 webrtcDisable: yes
-# Address of the WebRTC listener.
-webrtcAddress: :8889
-# Enable TLS/HTTPS on the WebRTC server.
-webrtcEncryption: no
-# Path to the server key.
-# This can be generated with:
-# openssl genrsa -out server.key 2048
-# openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
-webrtcServerKey: server.key
-# Path to the server certificate.
-webrtcServerCert: server.crt
-# Value of the Access-Control-Allow-Origin header provided in every HTTP response.
-# This allows to play the WebRTC stream from an external website.
-webrtcAllowOrigin: '*'
-# List of IPs or CIDRs of proxies placed before the WebRTC server.
-# If the server receives a request from one of these entries, IP in logs
-# will be taken from the X-Forwarded-For header.
-webrtcTrustedProxies: []
-# List of ICE servers, in format type:user:pass:host:port or type:host:port.
-# type can be "stun", "turn" or "turns".
-# STUN servers are used to get the public IP of both server and clients.
-# TURN/TURNS servers are used as relay when a direct connection between server and clients is not possible.
-# if user is "AUTH_SECRET", then authentication is secret based.
-# the secret must be inserted into the pass field.
-webrtcICEServers: [stun:stun.l.google.com:19302]
-# List of public IP addresses that are to be used as a host.
-# This is used typically for servers that are behind 1:1 D-NAT.
-webrtcICEHostNAT1To1IPs: []
-# Address of a ICE UDP listener in format host:port.
-# If filled, ICE traffic will come through a single UDP port,
-# allowing the deployment of the server inside a container or behind a NAT.
-webrtcICEUDPMuxAddress:
-# Address of a ICE TCP listener in format host:port.
-# If filled, ICE traffic will come through a single TCP port,
-# allowing the deployment of the server inside a container or behind a NAT.
-# At the moment, setting this parameter forces usage of the TCP protocol,
-# which is not optimal for WebRTC.
-webrtcICETCPMuxAddress:
 
 ###############################################
 # Path parameters
