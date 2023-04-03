@@ -80,7 +80,8 @@ const create = () => {
 	if (Hls.isSupported()) {
 		const hls = new Hls({
 			maxLiveSyncPlaybackRate: 1,
-			backBufferLength: 200,
+			backBufferLength: 400,
+			liveDurationInfinity: true,
 		});
 
 		hls.on(Hls.Events.ERROR, (evt, data) => {
@@ -123,6 +124,12 @@ const create = () => {
 
 window.addEventListener('DOMContentLoaded', create);
 
+setInterval(() => {
+	console.log("############");
+	console.log(video.seekable.length);
+	console.log(video.buffered.length);
+	console.log();
+}, 1000);
 
 </script>
 
