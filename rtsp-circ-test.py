@@ -16,7 +16,7 @@ class CircularRTSPRecorder(Thread):
         self.sink_url = sink_url
         self.av_instance = None
         self.connected = False
-        self.frame_buffer = deque('',maxlen=60*5)
+        self.frame_buffer = deque('',maxlen=30*20)
         self.record_event = Event()
 
     def open_rtsp_stream(self):
@@ -42,8 +42,8 @@ class CircularRTSPRecorder(Thread):
         
         # Flush the encoder
         print("finished dump")
-        out_packet = self.out_stream.encode(None)
-        self.video_sink.mux(out_packet)
+        #out_packet = self.out_stream.encode(None)
+        #self.video_sink.mux(out_packet)
         self.video_sink.close()
         print("Saved and Closed")
 
@@ -79,7 +79,7 @@ class CircularRTSPRecorder(Thread):
             else:
                 time.sleep(10)
 
-recorder = CircularRTSPRecorder(source_url='rtsp://192.168.9.153:8554/cam',sink_url="test.mp4")
+recorder = CircularRTSPRecorder(source_url='rtsp://localhost:8554/cam',sink_url="test.mp4")
 recorder.start()
 
 while True:
