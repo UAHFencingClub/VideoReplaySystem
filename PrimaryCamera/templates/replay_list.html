@@ -1,0 +1,9 @@
+<!doctype html>
+
+<div id="clips_list">
+    <ul>
+    {% for clip in clips_list %}
+        <li><a href="/replay?clip_id={{ clip }}">{{ clip }}</a></li>
+    {% endfor %}   
+    </ul>
+</div>

@@ -1,0 +1,105 @@
+<div class="container">
+    <div class="left_light"></div>
+    <div class="logo"><img src="/images/logo.png"/></div>
+    <div class="right_light"></div>
+    <div class="left_score">0</div>
+    <div class="right_score">0</div>
+    <div class="timer">0:00</div>
+</div>
+
+<style>
+.container {  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-rows: 1.1fr 0.9fr 0.6fr 1.4fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  height: 100vh;
+  width: 100hv;
+  background-color: black;
+  grid-template-areas:
+    ". . . . ."
+    ". left_light logo right_light ."
+    ". left_score timer right_score ."
+    ". . . . .";
+}
+
+.logo {
+  grid-area: logo;
+  background-color:  white;
+  outline: white solid;
+}
+
+img {
+    width: 100%; /* or any custom size */
+    height: 100%; 
+    object-fit: contain;
+}
+
+.left_light {
+  grid-area: left_light;
+  outline: white solid;
+}
+
+.right_light {
+  grid-area: right_light;
+  outline: white solid;
+}
+
+.left_score {
+  grid-area: left_score;
+  text-align: center;
+  color: rgb(163, 163, 163);
+  outline: white solid;
+  align-items: center;
+  vertical-align: middle;
+
+  text-decoration: bold;
+  height: 15vh;
+  font-size: 15vh;
+  line-height: 15vh;
+}
+
+.right_score {
+  grid-area: right_score;
+  text-align: center;
+  color: rgb(163, 163, 163);
+  outline: white solid;
+  align-items: center;
+  vertical-align: middle;
+
+  text-decoration: bold;
+  height: 15vh;
+  font-size: 15vh;
+  line-height: 15vh;
+}
+
+.timer {
+  grid-area: timer;
+  text-align: center;
+  color: rgb(163, 163, 163);
+  outline: white solid;
+
+  color: rgb(163, 163, 163);
+  align-items: center;
+  vertical-align: middle;
+
+  text-decoration: bold;
+  height: 15vh;
+  font-size: 15vh;
+  line-height: 15vh;
+
+}
+
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script>
+  var socket = io();
+
+  socket.on('scoring_ui_update', (data) => {
+    console.log('Update UI');
+    for (const [key, value] of Object.entries(data)) {
+      document.getElementsByClassName(key)[0].innerHTML = value;
+    }
+  });
+</script>
