@@ -4,14 +4,13 @@ import sys
 import numpy
 from trackingBox import center
 
-tracker_types = ['KCF','MOSSE', 'CSRT']
-tracker_type = tracker_types[2]
 
-face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+tracker_types = ['KCF','MOSSE', 'CSRT']
+tracker_type = tracker_types[0]
 
 # Trying the HOG algorithm for person detection
-#person = cv2.HOGDescriptor()
-#person.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+person = cv2.HOGDescriptor()
+person.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
@@ -30,7 +29,8 @@ elif tracker_type == "CSRT":
 
 
 # Starts the video and lets the camera focus for a second
-video = cv2.VideoCapture(0) # for using CAM
+video = cv2.VideoCapture('test_video.mp4') # for using CAM
+
 time.sleep(1.0)
  
 # Exit if video not opened.
@@ -48,43 +48,45 @@ if not ok:
 while True:
     #Read in the frame data 
     ok, frame = video.read()
+    frame = cv2.resize(frame, (640, 480))
 
     # If the frame data cannot be read then exit the tracking loop
     if not ok:
         break
     
+    #width  = video.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+    #height = video.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+
     # Getting the time before running the tracking algorithm
     timer = cv2.getTickCount()
 
-    # Gets the initial bounding boxes for the faces detected in the frame
+    # Gets the initial bounding boxes for the people detected in the frame
     if cv2.waitKey(1) & 0xFF == ord('s'): # runs if the face tracking algorithm
-
-        #Converting the frame to gray tone so that the face detection can work
-        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         
-        #Detecting the faces in the frame
-        faces = face_detect.detectMultiScale(gray_frame,1.1,3)
-        print(faces)
+        # Setting up the the HOG detection algorithm
+        people, weights = person.detectMultiScale(frame,1,[16,16],[8,8],1.15,0)
+        print(people)
+        print(weights)
 
-        #Checking the number of faces in the frame
-        num_faces = numpy.shape(faces)
+        #Checking the number of people in the frame
+        num_people = numpy.shape(people)
         # Tracking success
-        if num_faces[0] < 1:
+        if num_people[0] < 1:
             initial_find1 = False
             initial_find2 = False
-        elif num_faces[0] < 2:
-            facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
-            tracker1 = cv2.TrackerCSRT_create()
+        elif num_people[0] < 2:
+            facebox1 = (people[0][0],people[0][1],people[0][2],people[0][3])
+            tracker1 = cv2.TrackerKCF_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
-        # If there is more than two faces in frame draw bounding boxes for the first two
+        # If there is more than two people in frame draw bounding boxes for the first two
         else:
-            facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
-            facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
-            tracker1 = cv2.TrackerCSRT_create()
+            facebox1 = (int(people[0][0]),int(people[0][1]),int(people[0][2]),int(people[0][3]))
+            tracker1 = cv2.TrackerKCF_create()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
-            tracker2 = cv2.TrackerCSRT_create()
+            facebox2 = (int(people[1][0]),int(people[1][1]),int(people[1][2]),int(people[1][3]))
+            tracker2 = cv2.TrackerKCF_create()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
 
@@ -95,9 +97,11 @@ while True:
         p1 = (int(facebox1[0]), int(facebox1[1]))
         p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
         centerX, centerY = center(facebox1)
+
+
         cv2.rectangle(frame, p1, p2, (0,255,255), 2, 1)
-        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (0,255,255), 1)
-        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (0,255,255), 1)
+        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (0,255,255), 2)
+        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (0,255,255), 2)
     else :
         # Tracking failure
         cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
@@ -109,9 +113,11 @@ while True:
         p1 = (int(facebox2[0]), int(facebox2[1]))
         p2 = (int(facebox2[0] + facebox2[2]), int(facebox2[1] + facebox2[3]))
         centerX, centerY = center(facebox2)
+
+
         cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
-        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (255,0,255), 1)
-        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (255,0,255), 1)
+        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (255,0,255), 2)
+        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (255,0,255), 2)
     else :
         # Tracking failure
         cv2.putText(frame, "Tracking failure detected on 2", (100,110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
