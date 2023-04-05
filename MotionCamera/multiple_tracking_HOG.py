@@ -60,8 +60,10 @@ while True:
     # Getting the time before running the tracking algorithm
     timer = cv2.getTickCount()
 
+    key_pressed = cv2.waitKey(1) & 0xFF
+
     # Gets the initial bounding boxes for the people detected in the frame
-    if cv2.waitKey(1) & 0xFF == ord('s'): # runs if the face tracking algorithm
+    if key_pressed == ord('s'): # runs if the face tracking algorithm
         
         # Setting up the the HOG detection algorithm
         people, weights = person.detectMultiScale(frame,1,[16,16],[8,8],1.15,0)
@@ -89,6 +91,9 @@ while True:
             tracker2 = TrackerFunction()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
+    #Exiting the tracking loop
+    elif key_pressed == ord('q'): # if press q 
+        break
 
     # Tracking the first object
     if facebox1 and initial_find1:
@@ -133,10 +138,6 @@ while True:
     cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
         # Display result
     cv2.imshow("Tracking", frame)
-
-    #Exiting the tracking loop
-    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
-        break
 
 video.release()
 cv2.destroyAllWindows()
