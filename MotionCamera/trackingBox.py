@@ -10,10 +10,6 @@ class CameraMove:
         self.sio.connect(url)
         
     def move(self, yaw, pitch):
-        #should be handled on the other end, will do later.
-        assert(abs(yaw)<=90)
-        assert(pitch<0)
-        assert(pitch>=-90)
         data = {
             "motor_x": yaw/90,
             "motor_y": pitch/90,
