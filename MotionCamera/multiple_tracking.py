@@ -59,7 +59,7 @@ while True:
     key_pressed = cv2.waitKey(1) & 0xFF
     
     # Gets the initial bounding boxes for the faces detected in the frame
-    if key_pressedim == ord('s'): # runs if the face tracking algorithm
+    if key_pressed == ord('s'): # runs if the face tracking algorithm
 
         #Converting the frame to gray tone so that the face detection can work
         gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
