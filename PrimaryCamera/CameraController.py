@@ -12,16 +12,16 @@ class CameraController:
         servo_y = Servo(20,min_pulse_width=0.0005,max_pulse_width=0.0025)
 
         self.motor_elements = {
-            "motor_x" : {
+            "motor_x" : { #pitch
                 "MIN_VALUE" : -1,
                 "MAX_VALUE" : 1,
                 "DEF_VALUE" : 0,
                 "STEP"      : servo_step,
                 "SERVO"     : servo_x
             },
-            "motor_y" : {
+            "motor_y" : { #yaw
                 "MIN_VALUE" : -1,
-                "MAX_VALUE" : 1,
+                "MAX_VALUE" : -.4,
                 "DEF_VALUE" : -.8,
                 "STEP"      : servo_step,
                 "SERVO"     : servo_y
@@ -36,10 +36,14 @@ class CameraController:
 
     def set(self, element, value):
         if element in self.motor_elements.keys():
-            self.motor_elements[element]["SERVO"].value = value
+            if (value >= self.motor_elements[element]["MIN_VALUE"]) and (value <= self.motor_elements[element]["MAX_VALUE"]):
+                self.motor_elements[element]["SERVO"].value = value
+                result = True
+            else:
+                result = False
         else:
-            self.focuser.set(element, value)
-        return True
+            result = self.focuser.set(element, value)
+        return result
 
     def get(self,element):
         if element in self.motor_elements.keys():

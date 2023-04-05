@@ -87,7 +87,8 @@ def display_score():
 @socketio.on('my event')
 def handle_my_custom_event(json):
 	for key in json:
-		camera_control.set(key,json[key])
+		result = camera_control.set(key,json[key])
+		emit('my event',result)
 
 @socketio.on('scoring_update')
 def handle_scoreing_update(json):

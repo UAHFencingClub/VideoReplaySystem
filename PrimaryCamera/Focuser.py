@@ -121,12 +121,15 @@ class Focuser:
         self.waitingForFree()
         info = self.opts[opt]
         if value > info["MAX_VALUE"]:
-            value = info["MAX_VALUE"]
-        if value < info["MIN_VALUE"]:
-            value = info["MIN_VALUE"]
-        self.write(self.CHIP_I2C_ADDR,info["REG_ADDR"],value)
+            result = False
+        elif value < info["MIN_VALUE"]:
+            result = False
+        else:
+            self.write(self.CHIP_I2C_ADDR,info["REG_ADDR"],value)
+            result = True
         if flag & 0x01 != 0:
             self.waitingForFree()
+        return result
 
 pass 
 
