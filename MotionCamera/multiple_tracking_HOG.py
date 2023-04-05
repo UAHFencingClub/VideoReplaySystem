@@ -18,14 +18,14 @@ initial_find1 = False
 initial_find2 = False
 
 if tracker_type == 'KCF':
-    tracker1 = cv2.TrackerKCF_create()
-    tracker2 = cv2.TrackerKCF_create()
+    TrackerFunction = cv2.TrackerKCF_create
 elif tracker_type == 'MOSSE':
-    tracker1 = cv2.TrackerMOSSE_create()
-    tracker2 = cv2.TrackerMOSSE_create()
+    TrackerFunction = cv2.TrackerMOSSE_create
 elif tracker_type == "CSRT":
-    tracker1 = cv2.TrackerCSRT_create()
-    tracker2 = cv2.TrackerCSRT_create()
+    TrackerFunction = cv2.TrackerCSRT_create
+
+tracker1 = TrackerFunction()
+tracker2 = TrackerFunction()
 
 
 # Starts the video and lets the camera focus for a second
@@ -76,17 +76,17 @@ while True:
             initial_find2 = False
         elif num_people[0] < 2:
             facebox1 = (people[0][0],people[0][1],people[0][2],people[0][3])
-            tracker1 = cv2.TrackerKCF_create()
+            tracker1 = TrackerFunction()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
         # If there is more than two people in frame draw bounding boxes for the first two
         else:
             facebox1 = (int(people[0][0]),int(people[0][1]),int(people[0][2]),int(people[0][3]))
-            tracker1 = cv2.TrackerKCF_create()
+            tracker1 = TrackerFunction()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
             facebox2 = (int(people[1][0]),int(people[1][1]),int(people[1][2]),int(people[1][3]))
-            tracker2 = cv2.TrackerKCF_create()
+            tracker2 = TrackerFunction()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
 
