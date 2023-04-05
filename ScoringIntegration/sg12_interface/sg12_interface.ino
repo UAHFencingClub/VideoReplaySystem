@@ -33,7 +33,7 @@ StaticJsonDocument<200> sg12_data;
 
 //Wifi related variables
 const char* ssid = "Student5";
-const char* password = "***REMOVED***";
+const char* password = "";
 
 int btnGPIO = 0;
 int btnState = false;
