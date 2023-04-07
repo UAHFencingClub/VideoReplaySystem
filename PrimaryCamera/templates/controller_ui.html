@@ -1,8 +1,10 @@
-<!doctype html>
+
 
 {% extends 'live_feed.html' %}
 
+{% block content %}
 <div id="camera_control">
+    <h4>Camera Controls:</h4>
     {% for element, value in camera_control.control_elements.items(): %}
         <div id="{{ element }}">
             <input type="range"
@@ -34,3 +36,4 @@
         }
     });
 </script>
+{% endblock %}
