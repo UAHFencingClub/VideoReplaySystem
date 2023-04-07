@@ -28,8 +28,30 @@ class Focuser:
     bus = None
     CHIP_I2C_ADDR = 0x0C
     BUSY_REG_ADDR = 0x04
-    def __init__(self, bus):
+    def __init__(self):
         print("Mock Init")
+        servo_x = 0
+        servo_y = 0
+
+        self.motor_elements = {
+            "motor_x" : { #pitch
+                "MIN_VALUE" : -1,
+                "MAX_VALUE" : 1,
+                "DEF_VALUE" : 0,
+                "STEP"      : 1,
+                "SERVO"     : servo_x
+            },
+            "motor_y" : { #yaw
+                "MIN_VALUE" : -1,
+                "MAX_VALUE" : -.4,
+                "DEF_VALUE" : -.8,
+                "STEP"      : 1,
+                "SERVO"     : servo_y
+            }
+        }
+
+        self.opts.update(self.motor_elements)
+        self.control_elements = self.opts
         
     def read(self,chip_addr,reg_addr):
         return 8
@@ -91,7 +113,7 @@ class Focuser:
         print("Mock Reset")
 
     def get(self,opt,flag = 0):
-            return self.opts[opt]["REG_ADDR"]
+            return 1
 
     def set(self,opt,value,flag = 1):
         if not opt in self.opts:

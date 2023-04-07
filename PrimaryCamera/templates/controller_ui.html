@@ -1,5 +1,7 @@
 <!doctype html>
 
+{% extends 'live_feed.html' %}
+
 <div id="camera_control">
     {% for element, value in camera_control.control_elements.items(): %}
         <div id="{{ element }}">

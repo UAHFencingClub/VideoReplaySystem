@@ -23,7 +23,7 @@ camera_control = CameraController()
 
 @app.route('/')
 def index():
-	return 'Server Works!'
+	return render_template('index.html')
 
 REPLAY_CLIPS_DIRECTORY='clips'
 REPLAY_CLIPS_FORMAT='mp4'
