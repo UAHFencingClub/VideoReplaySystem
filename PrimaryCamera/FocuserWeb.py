@@ -36,38 +36,8 @@ def get_image(path):
 	return send_from_directory('images',path)
 
 @app.route('/replay', methods=['GET', 'POST'])
-def replay():
-	clip_id = request.args.get('clip_id') 
-	if request.method == 'POST':
-		time_string = time.strftime("%Y-%m-%d_%H%M%S", time.localtime(time.time()))
-		replay_base_filename = f'Replay-{time_string}'
-		clip_file = f"{REPLAY_CLIPS_DIRECTORY}/{replay_base_filename}.h264"
-		#TODO implement audio buffer to dump
-		#Plan is to use a python queue and a thread to wirite audio to, and itertools to get the last few items in the queue.
-		''' Example for my reference
-			>>> import itertools
-			>>> from collections import deque
-			>>> q = deque('',maxlen=10)
-			>>> for i in range(10,20):
-			...     q.append(i)
-			... 
-			>>> q
-			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
-			>>> output = list(itertools.islice(q,7,10))
-			>>> output
-			[17, 18, 19]
-			>>> q
-			deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], maxlen=10)
-		'''
-
-		result = redirect(f"/replay?clip_id={replay_base_filename}.{REPLAY_CLIPS_FORMAT}", code=301)
-	elif clip_id is None:
-		clips_list = [clip for clip in os.listdir(f"./{REPLAY_CLIPS_DIRECTORY}") if clip.endswith(f".{REPLAY_CLIPS_FORMAT}")]
-		result = render_template('replay_list.html',clips_list=clips_list, clip_path = REPLAY_CLIPS_DIRECTORY)
-	else: 
-		result = render_template('replay_interface.html',clip_id = clip_id, clip_path = REPLAY_CLIPS_DIRECTORY)
-	
-	return result
+def replay():	
+	return render_template('replay_feed.html')
 
 @app.route('/live')
 def live():
