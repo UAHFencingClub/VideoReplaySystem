@@ -17,6 +17,7 @@ facebox2 = (0,0,0,0)
 initial_find1 = False
 initial_find2 = False
 
+
 if tracker_type == 'KCF':
     TrackerFunction = cv2.TrackerKCF_create
 elif tracker_type == 'MOSSE':
