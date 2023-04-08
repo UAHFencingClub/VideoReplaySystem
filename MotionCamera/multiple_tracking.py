@@ -93,6 +93,7 @@ while True:
             initial_find1 = False
             initial_find2 = False
             camera_motion.move(centerAngleX,centerAngleY)
+            currentAngle = centerAngleX
         elif num_faces[0] < 2:
             facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
             tracker1 = TrackerFunction()
@@ -146,9 +147,13 @@ while True:
     
     if (trackingFailure1 == 0) and (trackingFailure2 == 0):
         moveLeft, moveRight = trackingBox.movementOfMovingCamera(frameWidth,centerX1,centerX2)
-        currentAngle = currentAngle + moveLeft - moveRight
-        if(currentAngle < 10) and (currentAngle > -10):
+        currentAngle = currentAngle - moveLeft + moveRight
+        if(currentAngle < 20) and (currentAngle > -20):
             camera_motion.move(currentAngle,centerAngleY)
+        elif(currentAngle > 20):
+            currentAngle = 20
+        elif(currentAngle < -20):
+            currentAngle = -20
         print(frameWidth)
         print(centerX1)
         print(centerX2)

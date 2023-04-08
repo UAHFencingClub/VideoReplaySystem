@@ -24,7 +24,7 @@ def center(boundingBox):
 def movementOfMovingCamera(frameWidth,Fencer1X,Fencer2X):
     moveLeft = 0
     moveRight = 0
-    leftBoundry = 80
+    leftBoundry = 180
     rightBoundry = frameWidth - 100
     fencer1InMiddle = (Fencer1X > leftBoundry) and (Fencer1X < rightBoundry)
     fencer1Left = Fencer1X < leftBoundry
