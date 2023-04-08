@@ -30,7 +30,7 @@ elif tracker_type == "CSRT":
 
 # Starts the video and lets the camera focus for a second
 video = cv2.VideoCapture('test_video.mp4') # for using CAM
-
+#video = cv2.VideoCapture("rtsp://10.4.145.139:8554/cam")
 time.sleep(1.0)
  
 # Exit if video not opened.

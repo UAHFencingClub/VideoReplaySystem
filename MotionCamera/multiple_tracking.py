@@ -8,10 +8,8 @@ tracker_types = ['KCF','MOSSE', 'CSRT']
 tracker_type = tracker_types[2]
 
 face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+#face_detect = cv2.CascadeClassifier('haarcascade_fullbody.xml')
 
-# Trying the HOG algorithm for person detection
-#person = cv2.HOGDescriptor()
-#person.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
@@ -30,7 +28,8 @@ elif tracker_type == "CSRT":
 
 
 # Starts the video and lets the camera focus for a second
-video = cv2.VideoCapture(0) # for using CAM
+video = cv2.VideoCapture(1) # for using CAM
+#video = cv2.VideoCapture("rtsp://10.4.145.139:8554/cam")
 time.sleep(1.0)
  
 # Exit if video not opened.
