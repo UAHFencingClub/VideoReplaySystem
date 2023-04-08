@@ -17,14 +17,14 @@ initial_find1 = False
 initial_find2 = False
 
 if tracker_type == 'KCF':
-    tracker1 = cv2.TrackerKCF_create()
-    tracker2 = cv2.TrackerKCF_create()
+    TrackerFunction = cv2.TrackerKCF_create
 elif tracker_type == 'MOSSE':
-    tracker1 = cv2.TrackerMOSSE_create()
-    tracker2 = cv2.TrackerMOSSE_create()
+    TrackerFunction = cv2.TrackerMOSSE_create
 elif tracker_type == "CSRT":
-    tracker1 = cv2.TrackerCSRT_create()
-    tracker2 = cv2.TrackerCSRT_create()
+    TrackerFunction = cv2.TrackerCSRT_create
+
+tracker1 = TrackerFunction()
+tracker2 = TrackerFunction()
 
 
 # Starts the video and lets the camera focus for a second
@@ -55,8 +55,10 @@ while True:
     # Getting the time before running the tracking algorithm
     timer = cv2.getTickCount()
 
+    key_pressed = cv2.waitKey(1) & 0xFF
+    
     # Gets the initial bounding boxes for the faces detected in the frame
-    if cv2.waitKey(1) & 0xFF == ord('s'): # runs if the face tracking algorithm
+    if key_pressed == ord('s'): # runs if the face tracking algorithm
 
         #Converting the frame to gray tone so that the face detection can work
         gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
@@ -73,19 +75,21 @@ while True:
             initial_find2 = False
         elif num_faces[0] < 2:
             facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
-            tracker1 = cv2.TrackerCSRT_create()
+            tracker1 = TrackerFunction()()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
         # If there is more than two faces in frame draw bounding boxes for the first two
         else:
             facebox1 = (int(faces[0][0]),int(faces[0][1]),int(faces[0][2]),int(faces[0][3]))
             facebox2 = (int(faces[1][0]),int(faces[1][1]),int(faces[1][2]),int(faces[1][3]))
-            tracker1 = cv2.TrackerCSRT_create()
+            tracker1 = TrackerFunction()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
-            tracker2 = cv2.TrackerCSRT_create()
+            tracker2 = TrackerFunction()
             ok2 = tracker2.init(frame, facebox2)
             initial_find2 = True
+    elif key_pressed == ord('q'): # if press q 
+        break
 
     # Tracking the first object
     if facebox1 and initial_find1:
@@ -126,10 +130,6 @@ while True:
     cv2.putText(frame, "FPS : " + str(int(fps)), (100,50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,50), 2)
         # Display result
     cv2.imshow("Tracking", frame)
-
-    #Exiting the tracking loop
-    if cv2.waitKey(1) & 0xFF == ord('q'): # if press SPACE bar
-        break
 
 video.release()
 cv2.destroyAllWindows()

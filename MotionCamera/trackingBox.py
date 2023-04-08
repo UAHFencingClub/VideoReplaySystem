@@ -1,4 +1,20 @@
 import numpy
+import socketio
+import json
+import rel
+
+class CameraMove:
+    def __init__(self, url) -> None:
+        self.url = url
+        self.sio = socketio.Client()
+        self.sio.connect(url)
+        
+    def move(self, yaw, pitch):
+        data = {
+            "motor_x": yaw/90,
+            "motor_y": pitch/90,
+        }
+        self.sio.emit('my event', data)
 
 def center(boundingBox):
     centerX = int(boundingBox[0]) + int(boundingBox[2]/2)
