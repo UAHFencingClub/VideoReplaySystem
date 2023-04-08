@@ -24,21 +24,30 @@ def center(boundingBox):
 def movementOfMovingCamera(frameWidth,Fencer1X,Fencer2X):
     moveLeft = 0
     moveRight = 0
-    leftBoundry = 50
-    rightBoundry = frameWidth - 50
+    leftBoundry = 80
+    rightBoundry = frameWidth - 100
+    fencer1InMiddle = (Fencer1X > leftBoundry) and (Fencer1X < rightBoundry)
+    fencer1Left = Fencer1X < leftBoundry
+    fencer1Right = Fencer1X > rightBoundry
+    fencer2InMiddle = (Fencer2X > leftBoundry) and (Fencer2X < rightBoundry)
+    fencer2Left = Fencer2X < leftBoundry
+    fencer2Right = Fencer2X > rightBoundry
 
     #fencers are centered in the camera
-    if (((Fencer1X < leftBoundry) and (Fencer1X > rightBoundry)) and ((Fencer2X < leftBoundry) and (Fencer2X > rightBoundry))):
+    if (fencer1InMiddle and fencer2InMiddle):
         moveLeft = 0
         moveRight = 0
-    #F
-    elif (((Fencer1X > leftBoundry) and (Fencer1X < rightBoundry)) and ((Fencer2X > leftBoundry) and (Fencer2X < rightBoundry))):
+    # Both fencers at the edge of the frame
+    elif ((fencer1Left or fencer1Right) and (fencer2Right or fencer2Left)):
+        moveRight = 0
+        moveLeft = 0
+    # One fencer on the left and the other in the middle
+    elif ((fencer2Left or fencer1Left) and (fencer1InMiddle or fencer2InMiddle)):
         moveLeft = 1
         moveRight = 0
-    elif (((Fencer1X > leftBoundry) and (Fencer1X < rightBoundry)) and ((Fencer2X > leftBoundry) and (Fencer2X < rightBoundry))):
+    # One fencer on the right and the other in the middle
+    elif ((fencer1Right or fencer2Right) and (fencer2InMiddle or fencer1InMiddle)):
         moveLeft = 0
         moveRight = 1
-    elif (((Fencer1X > leftBoundry) and (Fencer1X < rightBoundry)) and ((Fencer2X > leftBoundry) and (Fencer2X < rightBoundry))):
-        moveRight = 0
-        moveLeft = 0
+    
     return moveLeft, moveRight

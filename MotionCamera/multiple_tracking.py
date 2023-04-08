@@ -2,12 +2,17 @@ import time
 import cv2
 import sys
 import numpy
-from trackingBox import center
+import trackingBox
+import socketio
+import json
+import rel
 
 tracker_types = ['KCF','MOSSE', 'CSRT']
 tracker_type = tracker_types[2]
 
-face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+camera_motion = trackingBox.CameraMove("http://10.4.145.139:5000/controller")
+
+#face_detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 #face_detect = cv2.CascadeClassifier('haarcascade_fullbody.xml')
 
 
@@ -15,6 +20,15 @@ facebox1 = (0,0,0,0)
 facebox2 = (0,0,0,0)
 initial_find1 = False
 initial_find2 = False
+trackingFailure1 = 1
+trackingFailure2 = 1
+centerX1 = 300
+centerX2 = 300
+centerAngleX = 0
+centerAngleY = 3
+currentAngle = 0
+incrementAngle = 1
+
 
 if tracker_type == 'KCF':
     TrackerFunction = cv2.TrackerKCF_create
@@ -47,6 +61,7 @@ if not ok:
 while True:
     #Read in the frame data 
     ok, frame = video.read()
+    #frame = cv2.flip(frame,1)
 
     # If the frame data cannot be read then exit the tracking loop
     if not ok:
@@ -55,17 +70,21 @@ while True:
     # Getting the time before running the tracking algorithm
     timer = cv2.getTickCount()
 
+    frameWidth  = video.get(cv2.CAP_PROP_FRAME_WIDTH)
+    
+
     key_pressed = cv2.waitKey(1) & 0xFF
     
     # Gets the initial bounding boxes for the faces detected in the frame
-    if key_pressed == ord('s'): # runs if the face tracking algorithm
-
+    if (key_pressed == ord('s')) or ((initial_find1 == 0) or (initial_find2 == 0)): # runs if the face tracking algorithm
         #Converting the frame to gray tone so that the face detection can work
-        gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        #gray_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         
         #Detecting the faces in the frame
-        faces = face_detect.detectMultiScale(gray_frame,1.1,3)
-        print(faces)
+        #faces = face_detect.detectMultiScale(gray_frame,1.1,3)
+        faces = cv2.selectROIs("Select Fencers",frame,False)
+        #print(faces)
+        cv2.destroyWindow("Select Fencers")
 
         #Checking the number of faces in the frame
         num_faces = numpy.shape(faces)
@@ -73,9 +92,10 @@ while True:
         if num_faces[0] < 1:
             initial_find1 = False
             initial_find2 = False
+            camera_motion.move(centerAngleX,centerAngleY)
         elif num_faces[0] < 2:
             facebox1 = (faces[0][0],faces[0][1],faces[0][2],faces[0][3])
-            tracker1 = TrackerFunction()()
+            tracker1 = TrackerFunction()
             ok1 = tracker1.init(frame, facebox1)
             initial_find1 = True
         # If there is more than two faces in frame draw bounding boxes for the first two
@@ -94,32 +114,50 @@ while True:
     # Tracking the first object
     if facebox1 and initial_find1:
         # Tracking success
+        trackingFailure1 = 0
         ok1, facebox1 = tracker1.update(frame)
         p1 = (int(facebox1[0]), int(facebox1[1]))
         p2 = (int(facebox1[0] + facebox1[2]), int(facebox1[1] + facebox1[3]))
-        centerX, centerY = center(facebox1)
+        centerX1, centerY1 = trackingBox.center(facebox1)
         cv2.rectangle(frame, p1, p2, (0,255,255), 2, 1)
-        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (0,255,255), 1)
-        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (0,255,255), 1)
+        cv2.line(frame, (centerX1-5, centerY1), (centerX1+5, centerY1), (0,255,255), 1)
+        cv2.line(frame, (centerX1, centerY1-5), (centerX1, centerY1+5), (0,255,255), 1)
     else :
         # Tracking failure
+        trackingFailure1 = 1
         cv2.putText(frame, "Tracking failure detected on 1", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
     # Tracking the second object
     if facebox2 and initial_find2:
         # Tracking success
+        trackingFailure2 = 0
         ok2, facebox2 = tracker2.update(frame)
         p1 = (int(facebox2[0]), int(facebox2[1]))
         p2 = (int(facebox2[0] + facebox2[2]), int(facebox2[1] + facebox2[3]))
-        centerX, centerY = center(facebox2)
+        centerX2, centerY2 = trackingBox.center(facebox2)
         cv2.rectangle(frame, p1, p2, (255,0,255), 2, 1)
-        cv2.line(frame, (centerX-5, centerY), (centerX+5, centerY), (255,0,255), 1)
-        cv2.line(frame, (centerX, centerY-5), (centerX, centerY+5), (255,0,255), 1)
+        cv2.line(frame, (centerX2-5, centerY2), (centerX2+5, centerY2), (255,0,255), 1)
+        cv2.line(frame, (centerX2, centerY2-5), (centerX2, centerY2+5), (255,0,255), 1)
     else :
         # Tracking failure
+        trackingFailure2 = 1
         cv2.putText(frame, "Tracking failure detected on 2", (100,110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
     
+    if (trackingFailure1 == 0) and (trackingFailure2 == 0):
+        moveLeft, moveRight = trackingBox.movementOfMovingCamera(frameWidth,centerX1,centerX2)
+        currentAngle = currentAngle + moveLeft - moveRight
+        if(currentAngle < 10) and (currentAngle > -10):
+            camera_motion.move(currentAngle,centerAngleY)
+        print(frameWidth)
+        print(centerX1)
+        print(centerX2)
+        print(moveRight)
+        print(moveLeft)
+        
+
+
+
     # Calculate Frames per second (FPS)
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
