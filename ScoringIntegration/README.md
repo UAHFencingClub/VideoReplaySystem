@@ -28,4 +28,5 @@ Data seems to exists as the lower nibble of data of a byte with an upper nibble 
 - [ ] Status light.
 
 ## Pictures
-TODO
+![Max485 module connected to ESP32](readme_images/ESP32.jpg)
+![Scoring machine connected to Max485 module connected to ESP32](readme_images/ESP32_Score.jpg)
