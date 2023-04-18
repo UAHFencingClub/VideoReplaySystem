@@ -1,5 +1,6 @@
 Still a WIP project, more documentaion will come as we submit our final report.
 
+[SG12 Scoring Integration Readme](ScoringIntegration/README.md)
 
 # Design Problem
 
