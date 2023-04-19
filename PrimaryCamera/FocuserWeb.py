@@ -25,6 +25,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 if app.config["ENV"] == "development":
+	print("Using Dummy Camera Controller")
 	from FocuserDummy import Focuser as CameraController
 else:
 	from CameraController import CameraController
