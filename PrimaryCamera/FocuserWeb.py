@@ -1,9 +1,4 @@
 from flask import Flask, request, render_template, send_from_directory, Response, redirect
-import time
-import cv2
-import numpy as np
-import os
-import subprocess, shlex
 from flask_socketio import SocketIO, emit
 
 
