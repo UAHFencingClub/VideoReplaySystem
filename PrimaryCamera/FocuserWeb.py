@@ -50,6 +50,10 @@ def get_replay_clip(path):
 def get_image(path):
 	return send_from_directory('images',path)
 
+@app.route('/static/<path:path>')
+def get_static(path):
+	return send_from_directory('static',path)
+
 @app.route('/replay', methods=['GET', 'POST'])
 def replay():	
 	return render_template('replay_feed.html')

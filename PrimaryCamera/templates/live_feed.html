@@ -58,14 +58,21 @@ html, body {
 </head>
 <body>
 
-<video id="video" muted controls autoplay playsinline></video>
+<video-js id=vid1 width=600 height=300 class="vjs-default-skin" controls>
+	<source
+		id="source_element"
+		type="application/x-mpegURL">
+</video-js>
+
+<link href="https://vjs.zencdn.net/7.10.2/video-js.min.css" rel="stylesheet">
+<script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.2.9"></script>
 
 <script>
 
 const create = () => {
-	const video = document.getElementById('video');
+	const source_element = document.getElementById('video');
 	var playback_slider = document.getElementById("PlaybackSpeedSlider");
 	var playback_input = document.getElementById("PlaybackSpeedInput");
 
@@ -74,6 +81,8 @@ const create = () => {
 	} = window.location
 
 	const media_source = 'https://'+hostname+':8889/cam';
+
+	var player = videojs('vid1');
 
 	// always prefer hls.js over native HLS.
 	// this is because some Android versions support native HLS
@@ -93,17 +102,17 @@ const create = () => {
 		});
 
 		hls.loadSource(media_source+'/index.m3u8');
-		hls.attachMedia(video);
+		hls.attachMedia(source_element);
 
-		video.play();
-
-	} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+		player.play();
+		
+	} else if (source_element.canPlayType('application/vnd.apple.mpegurl')) {
 		// since it's not possible to detect timeout errors in iOS,
 		// wait for the playlist to be available before starting the stream
 		fetch(media_source+'/stream.m3u8')
 			.then(() => {
-				video.src = media_source+'/index.m3u8';
-				video.play();
+				source_element.src = media_source+'/index.m3u8';
+				player.play();
 			});
 	}
 
