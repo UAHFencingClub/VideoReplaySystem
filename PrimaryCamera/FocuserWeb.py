@@ -1,9 +1,23 @@
+'''
+    Fencing Video Tracker
+    Copyright (C) 2023  Erik Fong, Abram Coleman, Nathan Wight, Alex Rankin for the University of Alabama in Huntsville
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+'''
+
 from flask import Flask, request, render_template, send_from_directory, Response, redirect
-import time
-import cv2
-import numpy as np
-import os
-import subprocess, shlex
 from flask_socketio import SocketIO, emit
 
 
@@ -11,6 +25,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 if app.config["ENV"] == "development":
+	print("Using Dummy Camera Controller")
 	from FocuserDummy import Focuser as CameraController
 else:
 	from CameraController import CameraController

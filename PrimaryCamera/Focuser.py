@@ -34,8 +34,9 @@ class Focuser:
         try:
             import smbus
             self.bus = smbus.SMBus(bus)
-        except:
-            sys.exit(0)
+        except Exception as e:
+            print(f"Focuser Failed with {e} (can't open i2c bus)")
+            sys.exit(1)
         
     def read(self,chip_addr,reg_addr):
         value = self.bus.read_word_data(chip_addr,reg_addr)
