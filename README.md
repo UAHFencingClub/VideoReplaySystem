@@ -2,6 +2,10 @@ Still a WIP project, more documentaion will come as we submit our final report.
 
 [SG12 Scoring Integration Readme](ScoringIntegration/README.md)
 
+[Presentation Slides Without Video](https://files.kn4vhm.com/FencingVideoTrackerResources/FinalPresention.pdf)
+
+[Report](https://files.kn4vhm.com/FencingVideoTrackerResources/FinalReport.pdf)
+
 # Design Problem
 
 Video replay systems are used in fencing tournaments to aid in the scoring of a bout, or fencing match, and to train both athletes and referees. However, the footage and recordings available are often hard to find, and when available, the quality is poor with jerky camera movements, due to human control, and unintelligible referee audio as prime examples.
