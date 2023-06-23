@@ -6,6 +6,9 @@ Still a WIP project, more documentaion will come as we submit our final report.
 
 [Report](https://files.kn4vhm.com/FencingVideoTrackerResources/FinalReport.pdf)
 
+[Clip 1 of it somewhat working (you will have to skip around)](https://www.youtube.com/watch?v=ooR0VwDBqUM)
+[Clip 2 "](https://www.youtube.com/watch?v=wDaxYfE9l1I)
+
 # Design Problem
 
 Video replay systems are used in fencing tournaments to aid in the scoring of a bout, or fencing match, and to train both athletes and referees. However, the footage and recordings available are often hard to find, and when available, the quality is poor with jerky camera movements, due to human control, and unintelligible referee audio as prime examples.
