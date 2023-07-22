@@ -7,7 +7,10 @@ Still a WIP project, more documentaion will come as we submit our final report.
 [Report](https://files.kn4vhm.com/FencingVideoTrackerResources/FinalReport.pdf)
 
 [Clip 1 of it somewhat working (you will have to skip around)](https://www.youtube.com/watch?v=ooR0VwDBqUM)
+
 [Clip 2 "](https://www.youtube.com/watch?v=wDaxYfE9l1I)
+
+[Poor Quality Demo Presentation Clip](https://files.kn4vhm.com/FencingVideoTrackerResources/EE494_Demo_ForPublicRelease.mp4)
 
 # Design Problem
 
