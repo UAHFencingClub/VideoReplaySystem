@@ -1,0 +1,3 @@
+[submodule "SG12_SerialInterface"]
+	path = SG12_SerialInterface
+	url = https://github.com/UAHFencingClub/SG12_SerialInterface
