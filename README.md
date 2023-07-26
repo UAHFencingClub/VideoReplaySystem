@@ -1,6 +1,6 @@
 Still a WIP project, more documentaion will come as we submit our final report.
 
-[SG12 Scoring Integration Readme](ScoringIntegration/README.md)
+[SG12 Scoring Integration](https://github.com/UAHFencingClub/SG12_SerialInterface)
 
 [Presentation Slides Without Video](https://files.kn4vhm.com/FencingVideoTrackerResources/FinalPresention.pdf)
 
